@@ -1,7 +1,10 @@
 #-*- encoding: utf-8
 import struct
+import sys
+import os.path
 from rptfile import ReportFile
 from inpfile import InputFile
+from config import Config
 
 """書き込みフォーマット
 4 byte int 時刻数, t
@@ -26,3 +29,21 @@ def writebinary(report: ReportFile, inp: InputFile,  path: str):
                 pos = displacement[timeid] + inp.nodes[nodeid]
                 pk = struct.pack("=3d", pos)
                 f.write(pk)
+
+if __name__ == "__main__":
+    if not os.path.isfile(sys.argv[1]):
+        print("python binary.py [config path]")
+        sys.exit()
+
+    js = Config.open(sys.argv[1])
+    for key, val in js.items():
+        if key == "config":
+            continue
+        if val["type"] == "element":
+            if not os.path.isfile(val["input"]) and not os.path.isfile(val["report"]):
+                continue
+            inp = InputFile.open(val["input"])
+            rep = ReportFile.open(val["report"], inp.maxnodeid)
+            path = os.path.splitext(val["report"])[0] + ".bin"
+            print(path)
+            #writebinary(rep, inp, path)
