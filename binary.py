@@ -26,9 +26,10 @@ def writebinary(report: ReportFile, inp: InputFile,  path: str):
         pk = struct.pack("L", len(report.displacements.keys()))
         for timeid, _ in enumerate(report.times):
             for nodeid, displacement in report.displacements.items():
-                pos = displacement[timeid] + inp.nodes[nodeid]
-                pk = struct.pack("=3d", pos)
-                f.write(pk)
+                if nodeid in inp.nodes:
+                    pos = displacement[timeid] + inp.nodes[nodeid]
+                    pk = struct.pack("=3d", *pos)
+                    f.write(pk)
 
 if __name__ == "__main__":
     if not os.path.isfile(sys.argv[1]):
@@ -44,6 +45,6 @@ if __name__ == "__main__":
                 continue
             inp = InputFile.open(val["input"])
             rep = ReportFile.open(val["report"], inp.maxnodeid)
-            path = os.path.splitext(val["report"])[0] + ".bin"
-            print(path)
-            #writebinary(rep, inp, path)
+            path = os.path.splitext(val["report"])[0] + ".brp"
+            writebinary(rep, inp, path)
+            print("converted: " + path)
