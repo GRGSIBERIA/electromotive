@@ -77,9 +77,10 @@ class SequentialReportReader:
     def __del__(self):
         self.file.close()
     
-    """[summary]
+    """実行すると読み込んだ位置のハッシュを返す
 
     Raises:
+        StopIteration: イテレーションを終了させる
         StopIteration: イテレーションを終了させる
     """
     def iter_read(self):
@@ -116,6 +117,7 @@ def validitem(key, val):
     if not os.path.isfile(val["input"]) and not os.path.isfile(val["report"]):
         return False
     return True
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
