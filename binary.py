@@ -127,16 +127,19 @@ if __name__ == "__main__":
     if not os.path.isfile(path) and ("-s" == flag or "-w" == flag):
         printhelp()
 
-    if flag == "-w":
-        js = Config.open(path)
-        for key, val in js.items():
-            if validitem(key, val):
-                continue
-            
-            inp = InputFile.open(val["input"])
-            rep = ReportFile.open(val["report"], inp.maxnodeid)
+    js = Config.open(path)
+
+    for key, val in js.items():
+        if not validitem(key, val):
+            continue
+
+        inp = InputFile.open(val["input"])
+        rep = ReportFile.open(val["report"], inp.maxnodeid)
+
+        if flag == "-w":
             path = os.path.splitext(val["report"])[0] + ".brp"
             writebinary(rep, inp, path)
             print("converted: " + path)
-    elif flag == "-s":
-        js = Config.open(path)
+        elif flag == "-s":
+            pass
+        
