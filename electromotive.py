@@ -12,7 +12,7 @@ from inpfile import InputFile
 from rptfile import ReportFile
 from provider import ElementProvider, MagnetProvider
 from solver import Solver
-from binary import writebinary, readbinary
+from binary import writebinary, readbinary, SequentialReportReader
 
 
 def configuration(conf):
@@ -24,7 +24,7 @@ def configuration(conf):
     return (conf["solver"], conf["output"], wavpath, srate)
 
 
-def readingconfiguration(part: str, conf) -> List(float):
+def readingconfiguration(part: str, conf) -> List[float]:
     print("import %s" % part)
 
     inp = InputFile.open(conf["input"])
@@ -61,13 +61,13 @@ def solve(path: str):
 
     print("--- done import all ---")
 
-    del js["config"]
-    elements = [elem["history"] for elem in js.values() if elem["type"] == "element"]
-    magnets = [mag["history"] for mag in js.values() if mag["type"] == "magnet"]
+    #del js["config"]
+    #elements = [elem["history"] for elem in js.values() if elem["type"] == "element"]
+    #magnets = [mag["history"] for mag in js.values() if mag["type"] == "magnet"]
 
-    Solver.solve(solvername, elements, magnets, times)
+    #Solver.solve(solvername, elements, magnets, times)
 
-    return times, magnets, outputpath, wavpath, srate
+    #return times, magnets, outputpath, wavpath, srate
 
 
 if __name__ == "__main__":
@@ -76,13 +76,13 @@ if __name__ == "__main__":
     if not os.path.exists(sys.argv[1]):
         print("python electromotive.py [configure json file path]")
 
+    solve(sys.argv[1])
+
+"""
     times, magnets, outputpath, wavpath, srate = solve(sys.argv[1])
 
-    #plot.figure()
     y = np.array([history.inducedvoltage for history in magnets[0]])
     x = np.array(times)
-    #plot.plot(x, y)
-    #plot.show()
 
     with open(outputpath, "w") as f:
         for i, _ in enumerate(x):
@@ -97,3 +97,4 @@ if __name__ == "__main__":
         w.setframerate(srate)
         w.writeframes(data)
         w.close()
+"""

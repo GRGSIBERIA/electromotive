@@ -45,18 +45,9 @@ def writebinary(report: ReportFile, inp: InputFile,  path: str):
                     f.write(pk)
 
 
-def readbinary(path: str) -> SequentialReportReader:
-    if not os.path.isfile(path):
-        print("File not exists: " + path)
-        sys.exit()
-    
-    f = open(path, "rb")
-    return SequentialReportReader(f)
-
-
 def readtimes(f: io.BufferedIOBase) -> List[float]:
     b = f.read(4)
-    numof_times = struct.unpack_from("L", b, 0)
+    numof_times = struct.unpack_from("L", b, 0)[0]
     times = [0.0 for _ in range(numof_times)]
     bs = f.read(8 * numof_times)
     for i, _ in enumerate(times):
@@ -66,7 +57,7 @@ def readtimes(f: io.BufferedIOBase) -> List[float]:
 
 def readnumnode(f: io.BufferedIOBase):
     b = f.read(4)
-    return struct.unpack_from("L", b, 0)
+    return struct.unpack_from("L", b, 0)[0]
 
 
 class SequentialReportReader:
@@ -107,6 +98,16 @@ class SequentialReportReader:
         self.count += 1
 
         yield pos
+
+
+
+def readbinary(path: str) -> SequentialReportReader:
+    if not os.path.isfile(path):
+        print("File not exists: " + path)
+        sys.exit()
+    
+    f = open(path, "rb")
+    return SequentialReportReader(f)
 
 
 def printhelp():
