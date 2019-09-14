@@ -85,7 +85,7 @@ class SequentialReportReader:
         StopIteration: イテレーションを終了させる
     """
     def iter_read(self) -> Dict[int, np.ndarray]:
-        if self.numnodes < self.count:
+        if len(self.times) < self.count:
             self.count = 1
             raise StopIteration()
         
