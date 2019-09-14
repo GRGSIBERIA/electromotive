@@ -93,6 +93,7 @@ class SequentialReportReader:
             bs = self.file.read(8 * 3 + 4)
         except:
             self.count = 1
+            print("faild at reading.")
             raise StopIteration()
         
         pos = {}
