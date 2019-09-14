@@ -2,6 +2,9 @@
 import time
 import struct
 import wave
+import sys
+from typing import List
+import os.path
 import numpy as np
 import matplotlib.pyplot as plot
 from config import Config
@@ -9,6 +12,8 @@ from inpfile import InputFile
 from rptfile import ReportFile
 from provider import ElementProvider, MagnetProvider
 from solver import Solver
+from binary import writebinary, readbinary
+
 
 def configuration(conf):
     wavpath = None
@@ -18,7 +23,27 @@ def configuration(conf):
         srate = conf["sampling rate"]
     return (conf["solver"], conf["output"], wavpath, srate)
 
-def solve(path):
+
+def readingconfiguration(part: str, conf) -> List(float):
+    print("import %s" % part)
+
+    inp = InputFile.open(conf["input"])
+    print(conf["input"])
+
+    brppath = os.path.splitext(conf["report"])[0] + ".brp"
+    if not os.path.exists(brppath):
+        rpt = ReportFile.open(conf["report"], inp.maxnodeid)
+        writebinary(rpt, inp, brppath)
+    brp = readbinary(brppath)
+    print(conf["report"])
+
+    conf["inpdata"] = inp
+    conf["rptdata"] = brp
+
+    return brp.times
+
+
+def solve(path: str):
     print("--- start import ---")
     js = Config.open(path)
     numoftimes = 0
@@ -29,23 +54,9 @@ def solve(path):
             continue
 
         start = time.time()
-        print("import %s" % part)
-        inp = InputFile.open(conf["input"])
-        print(conf["input"])
-        rpt = ReportFile.open(conf["report"], inp.maxnodeid)
-        print(conf["report"])
-        conf["inpdata"] = inp
-        conf["rptdata"] = rpt
-        times = rpt.times
-        numoftimes = len(rpt.times)
 
-        if conf["type"] == "element":
-            conf["history"] = ElementProvider.histories(inp, rpt)
-        elif conf["type"] == "magnet":
-            conf["history"] = MagnetProvider.histories(inp, rpt, 
-                conf["top"]["point"], conf["top"]["right"], 
-                conf["bottom"]["point"], conf["bottom"]["right"], conf["magnetic charge"])
-        
+        times = readingconfiguration(part, conf)
+
         print("done import {} - {} sec".format(part, time.time() - start))
 
     print("--- done import all ---")
@@ -58,17 +69,14 @@ def solve(path):
 
     return times, magnets, outputpath, wavpath, srate
 
-#plot.figure(figsize=(8,4))
-#plot.plot(js["tine"]["rptdata"].times, [hist[885].centroid[1] for hist in js["tine"]["history"]])
-#plot.plot(js["tonebar"]["rptdata"].times, [hist[1476].centroid[1] for hist in js["tonebar"]["history"]])
-#plot.xlabel("Time [sec]")
-#plot.ylabel("Displacement [mm]")
-
-#plot.tight_layout()
-#plot.show()
 
 if __name__ == "__main__":
-    times, magnets, outputpath, wavpath, srate = solve("./data/config.json")
+    if len(sys.argv) != 2:
+        print("python electromotive.py [configure json file path]")
+    if not os.path.exists(sys.argv[1]):
+        print("python electromotive.py [configure json file path]")
+
+    times, magnets, outputpath, wavpath, srate = solve(sys.argv[1])
 
     #plot.figure()
     y = np.array([history.inducedvoltage for history in magnets[0]])
