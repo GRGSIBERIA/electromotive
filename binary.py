@@ -106,7 +106,7 @@ class SequentialReportReader:
 def printhelp():
     print("python binary.py [flag] [config path]")
     print("flag is")
-    print("       -s summarize binary")
+    print("       -s summarize report")
     print("       -w write binary")
     sys.exit()
 
@@ -141,5 +141,7 @@ if __name__ == "__main__":
             writebinary(rep, inp, path)
             print("converted: " + path)
         elif flag == "-s":
-            pass
-        
+            print(key)
+            print("maximum nodeid: ", inp.maxnodeid)
+            print("number of times: ", len(rep.times))
+            
