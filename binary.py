@@ -3,6 +3,7 @@ import struct
 import sys
 import io
 import os.path
+from typing import Dict, List
 import numpy as np
 from rptfile import ReportFile
 from inpfile import InputFile
@@ -43,7 +44,7 @@ def writebinary(report: ReportFile, inp: InputFile,  path: str):
                     pk = struct.pack("L3d", nodeid, *pos)
                     f.write(pk)
 
-def readbinary(path: str):
+def readbinary(path: str) -> SequentialReportReader:
     if not os.path.isfile(path):
         print("File not exists: " + path)
         sys.exit()
@@ -52,7 +53,7 @@ def readbinary(path: str):
     return SequentialReportReader(f)
 
 
-def readtimes(f: io.BufferedIOBase):
+def readtimes(f: io.BufferedIOBase) -> List[float]:
     b = f.read(4)
     numof_times = struct.unpack_from("L", b, 0)
     times = [0.0 for _ in range(numof_times)]
@@ -72,7 +73,7 @@ class SequentialReportReader:
         self.file = f
         self.times = readtimes(self.file)
         self.numnodes = readnumnode(self.file)
-        self.count = 0
+        self.count = 1
     
     def __del__(self):
         self.file.close()
@@ -83,12 +84,10 @@ class SequentialReportReader:
         StopIteration: イテレーションを終了させる
         StopIteration: イテレーションを終了させる
     """
-    def iter_read(self):
-        if self.numnodes <= self.count:
+    def iter_read(self) -> Dict[int, np.ndarray]:
+        if self.numnodes < self.count:
             raise StopIteration()
         
-        self.count += 1
-
         try:
             bs = self.file.read(8 * 3 + 4)
         except:
@@ -101,7 +100,10 @@ class SequentialReportReader:
             disp = np.array(unp[1:])
             pos[nodeid] = disp
 
+        self.count += 1
+
         yield pos
+
 
 def printhelp():
     print("python binary.py [flag] [config path]")
@@ -111,7 +113,7 @@ def printhelp():
     sys.exit()
 
 
-def validitem(key, val):
+def validitem(key, val) -> bool:
     if key == "config":
         return False
     if not os.path.isfile(val["input"]) and not os.path.isfile(val["report"]):
@@ -144,4 +146,3 @@ if __name__ == "__main__":
             print(key)
             print("maximum nodeid: ", inp.maxnodeid)
             print("number of times: ", len(rep.times))
-            
