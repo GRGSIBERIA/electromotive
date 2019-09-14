@@ -3,6 +3,8 @@ import time
 import struct
 import wave
 import sys
+import pprint
+import win_unicode_console
 from typing import List
 import os.path
 import numpy as np
@@ -13,6 +15,10 @@ from rptfile import ReportFile
 from provider import ElementProvider, MagnetProvider
 from solver import Solver
 from binary import writebinary, readbinary, SequentialReportReader
+
+
+win_unicode_console.enable()
+pp = pprint.PrettyPrinter(indent=4)
 
 
 def configuration(conf):
@@ -61,6 +67,20 @@ def solve(path: str):
         print("done import {} - {} sec".format(part, time.time() - start))
 
     print("--- done import all ---")
+    print("--- start solving electromotive ---")
+
+    for part, conf in js.items():
+        if part == "config":
+            continue
+
+        print("--- " + part)
+        print("number of nodes: {0}".format(conf["rptdata"].numnodes))
+        print("number of times: {0}".format(len(conf["rptdata"].times)))
+        cnt = 0
+        for hoge in conf["rptdata"]:
+            cnt += 1
+            pp.pprint(hoge)
+            break
 
     #del js["config"]
     #elements = [elem["history"] for elem in js.values() if elem["type"] == "element"]
