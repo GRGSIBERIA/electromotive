@@ -20,7 +20,7 @@ from config import Config
 ---------
 
 4 byte int ノード番号
-24 byte double 位置
+8*3 byte double 位置
 以下，nだけ繰り返し
 
 ---------
@@ -86,11 +86,13 @@ class SequentialReportReader:
     """
     def iter_read(self) -> Dict[int, np.ndarray]:
         if self.numnodes < self.count:
+            self.count = 1
             raise StopIteration()
         
         try:
             bs = self.file.read(8 * 3 + 4)
         except:
+            self.count = 1
             raise StopIteration()
         
         pos = {}
