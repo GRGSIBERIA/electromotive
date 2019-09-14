@@ -29,35 +29,37 @@ from config import Config
 """
 def writebinary(report: ReportFile, inp: InputFile,  path: str):
     with open(path, "wb") as f:
-        pk = struct.pack("L", len(report.times))
+        pk = struct.pack("<L", len(report.times))
         f.write(pk)
 
         for time in report.times:
-            pk = struct.pack("d", time)
+            pk = struct.pack("<d", time)
             f.write(pk)
         
-        pk = struct.pack("L", len(report.displacements.keys()))
+        pk = struct.pack("<L", len(report.displacements.keys()))
+        f.write(pk)
+
         for timeid, _ in enumerate(report.times):
             for nodeid, displacement in report.displacements.items():
                 if nodeid in inp.nodes:
                     pos = displacement[timeid] + inp.nodes[nodeid]
-                    pk = struct.pack("L3d", nodeid, *pos)
+                    pk = struct.pack("<L3d", nodeid, *pos)
                     f.write(pk)
 
 
 def readtimes(f: io.BufferedIOBase) -> List[float]:
     b = f.read(4)
-    numof_times = struct.unpack_from("L", b, 0)[0]
+    numof_times = struct.unpack_from("<L", b, 0)[0]
     times = [0.0 for _ in range(numof_times)]
     bs = f.read(8 * numof_times)
     for i, _ in enumerate(times):
-        times[i] = struct.unpack_from("d", bs, 8 * i)
+        times[i] = struct.unpack_from("<d", bs, 8 * i)
     return times
 
 
 def readnumnode(f: io.BufferedIOBase):
     b = f.read(4)
-    return struct.unpack_from("L", b, 0)[0]
+    return struct.unpack_from("<L", b, 0)[0]
 
 
 class SequentialReportReader:
@@ -70,34 +72,39 @@ class SequentialReportReader:
     def __del__(self):
         self.file.close()
     
+    def __iter__(self):
+        return self
+
     """実行すると読み込んだ位置のハッシュを返す
 
     Raises:
         StopIteration: イテレーションを終了させる
         StopIteration: イテレーションを終了させる
     """
-    def iter_read(self) -> Dict[int, np.ndarray]:
+    def __next__(self) -> Dict[int, np.ndarray]:
         if len(self.times) < self.count:
             self.count = 1
             raise StopIteration()
-        
+
+        chunksize = 8 * 3 + 4
         try:
-            bs = self.file.read(8 * 3 + 4)
+            # 32バイトアラインメントしないとだめらしい
+            bs = self.file.read(chunksize * self.numnodes) + bytes(range(4))
         except:
             self.count = 1
             print("faild at reading.")
             raise StopIteration()
-        
+
         pos = {}
-        for i, _ in enumerate(self.numnodes):
-            unp = struct.unpack_from("L3d", bs, (4 + 8) * i)
+        for i in range(self.numnodes):
+            unp = struct.unpack_from("<L3d", bs, chunksize * i)
             nodeid = unp[0]
             disp = np.array(unp[1:])
             pos[nodeid] = disp
 
         self.count += 1
 
-        yield pos
+        return pos
 
 
 
