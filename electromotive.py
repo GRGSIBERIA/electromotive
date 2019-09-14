@@ -46,7 +46,8 @@ def readingconfiguration(part: str, conf) -> List[float]:
 def solve(path: str):
     print("--- start import ---")
     js = Config.open(path)
-    numoftimes = 0
+
+    times = None
 
     for part, conf in js.items():
         if part == "config":

@@ -13,7 +13,7 @@ def magnetizenabla(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, 
     j = cross(front, r/length)
     k = cross(j, front)
     area = 2. * np.pi * radius**2
-    return (np.dot(front, r) + np.dot(k, r) / radius) / length**3 * area * magcharge
+    return (np.dot(front, r) + np.dot(k, r)) / length**3 * area * magcharge
     #return np.dot(front, r) / length**3 * area * magcharge
 
 
