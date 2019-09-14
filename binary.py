@@ -44,6 +44,7 @@ def writebinary(report: ReportFile, inp: InputFile,  path: str):
                     pk = struct.pack("L3d", nodeid, *pos)
                     f.write(pk)
 
+
 def readbinary(path: str) -> SequentialReportReader:
     if not os.path.isfile(path):
         print("File not exists: " + path)
