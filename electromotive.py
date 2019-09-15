@@ -33,7 +33,7 @@ def configuration(conf):
 
 
 def readingconfiguration(part: str, conf) -> List[float]:
-    print("import %s" % part)
+    print("----- import %s" % part)
 
     inp = InputFile.open(conf["input"])
     print(conf["input"])
@@ -41,6 +41,10 @@ def readingconfiguration(part: str, conf) -> List[float]:
     brppath = os.path.splitext(conf["report"])[0] + ".brp"
     if not os.path.exists(brppath):
         rpt = ReportFile.open(conf["report"], inp.maxnodeid)
+
+        if conf["type"] == "magnet":
+            pp.pprint(rpt.displacements)
+
         writebinary(rpt, inp, brppath)
     brp = readbinary(brppath)
     print(conf["report"])
@@ -81,27 +85,17 @@ def solve(path: str):
     numtimes = len(times)
     difftimes = 1.0 / float(numtimes)
 
-    flag = False
     for t in times:
         elements = []
         magnets = []
-
-        if flag:
-            break
 
         for part, conf in js.items():
             if part == "config":
                 continue
 
-            #print("--- " + part)
-            #print("number of nodes: {0}".format(conf["rptdata"].numnodes))
-            #print("number of times: {0}".format(len(conf["rptdata"].times)))
-
             try:
-                data = next(iter(conf["rptdata"]))
+                data = conf["rptdata"].read()
             except StopIteration:
-                flag = True
-                print(part)
                 break
 
             if conf["type"] == "element":
@@ -114,22 +108,6 @@ def solve(path: str):
                 br = conf["bottom"]["right"]
                 mag = conf["magnetic charge"]
                 magnets.append(Magnet(data[tc], data[tr], data[bc], data[br], mag))
-
-            #for timetodata in conf["rptdata"]:
-            #    if conf["type"] == "element":
-            #        pass
-            #    elif conf["type"] == "magnet":
-            #        pass
-            #    break
-        
-
-    #del js["config"]
-    #elements = [elem["history"] for elem in js.values() if elem["type"] == "element"]
-    #magnets = [mag["history"] for mag in js.values() if mag["type"] == "magnet"]
-
-    #Solver.solve(solvername, elements, magnets, times)
-
-    #return times, magnets, outputpath, wavpath, srate
 
 
 if __name__ == "__main__":

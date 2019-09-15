@@ -68,38 +68,23 @@ class SequentialReportReader:
         self.times = readtimes(self.file)
         self.numnodes = readnumnode(self.file)
         self.count = 1
-    
+        print("number of nodes: " + str(self.numnodes))
+        print("number of times: " + str(len(self.times)))
+
     def __del__(self):
         self.file.close()
     
-    def __iter__(self):
-        return self
 
-    """実行すると読み込んだ位置のハッシュを返す
-
-    Raises:
-        StopIteration: イテレーションを終了させる
-        StopIteration: イテレーションを終了させる
-    """
-    def __next__(self) -> Dict[int, np.ndarray]:
+    def read(self) -> Dict[int, np.ndarray]:
         if len(self.times) < self.count:
-            self.count = 1
             raise StopIteration()
 
         chunksize = 8 * 3 + 4
-        try:
-            # 32バイトアラインメントしないとだめらしい
-            bs = self.file.read(chunksize * self.numnodes)
-            bs += range(32 - len(bs))
-        except:
-            print("count of " + str(self.count))
-            self.count = 1
-            print("faild at reading.")
-            raise StopIteration()
-
+        
         pos = {}
         for i in range(self.numnodes):
-            unp = struct.unpack_from("<L3d", bs, chunksize * i)
+            bs = self.file.read(chunksize)
+            unp = struct.unpack("<L3d", bs)
             nodeid = unp[0]
             disp = np.array(unp[1:])
             pos[nodeid] = disp
