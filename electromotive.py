@@ -12,8 +12,8 @@ import matplotlib.pyplot as plot
 from config import Config
 from inpfile import InputFile
 from rptfile import ReportFile
-from provider import ElementProvider, MagnetProvider
-from solver import Solver
+#from provider import ElementProvider, MagnetProvider
+#from solver import Solver
 from binary import writebinary, readbinary, SequentialReportReader
 
 
