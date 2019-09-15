@@ -89,8 +89,10 @@ class SequentialReportReader:
         chunksize = 8 * 3 + 4
         try:
             # 32バイトアラインメントしないとだめらしい
-            bs = self.file.read(chunksize * self.numnodes) + bytes(range(4))
+            bs = self.file.read(chunksize * self.numnodes)
+            bs += range(32 - len(bs))
         except:
+            print("count of " + str(self.count))
             self.count = 1
             print("faild at reading.")
             raise StopIteration()
