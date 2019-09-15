@@ -15,8 +15,10 @@ from rptfile import ReportFile
 #from provider import ElementProvider, MagnetProvider
 #from solver import Solver
 from binary import writebinary, readbinary, SequentialReportReader
+from src.dataset import Element, Magnet
 
 
+# デバッグ便利関数
 win_unicode_console.enable()
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -55,6 +57,7 @@ def solve(path: str):
 
     times = None
 
+    # 計算の下準備
     for part, conf in js.items():
         if part == "config":
             solvername, outputpath, wavpath, srate = configuration(conf)
@@ -62,25 +65,63 @@ def solve(path: str):
 
         start = time.time()
 
-        times = readingconfiguration(part, conf)
+        # 時間の長さが異なるかどうかチェックする
+        times_temp = readingconfiguration(part, conf)
+        if times != None:
+            if len(times) != len(times_temp):
+                raise Exception(part + "is not equal to " + str(len(times)))
+        times = times_temp
 
         print("done import {} - {} sec".format(part, time.time() - start))
 
     print("--- done import all ---")
     print("--- start solving electromotive ---")
 
-    for part, conf in js.items():
-        if part == "config":
-            continue
+    inductance = []
+    numtimes = len(times)
+    difftimes = 1.0 / float(numtimes)
 
-        print("--- " + part)
-        print("number of nodes: {0}".format(conf["rptdata"].numnodes))
-        print("number of times: {0}".format(len(conf["rptdata"].times)))
-        cnt = 0
-        for hoge in conf["rptdata"]:
-            cnt += 1
-            pp.pprint(hoge)
+    flag = False
+    for t in times:
+        elements = []
+        magnets = []
+
+        if flag:
             break
+
+        for part, conf in js.items():
+            if part == "config":
+                continue
+
+            #print("--- " + part)
+            #print("number of nodes: {0}".format(conf["rptdata"].numnodes))
+            #print("number of times: {0}".format(len(conf["rptdata"].times)))
+
+            try:
+                data = next(iter(conf["rptdata"]))
+            except StopIteration:
+                flag = True
+                print(part)
+                break
+
+            if conf["type"] == "element":
+                mag = conf["magnetic permeability"]
+                elements += [Element(pos, mag) for _, pos in data.items()]
+            elif conf["type"] == "magnet":
+                tc = conf["top"]["center"]
+                tr = conf["top"]["right"]
+                bc = conf["bottom"]["center"]
+                br = conf["bottom"]["right"]
+                mag = conf["magnetic charge"]
+                magnets.append(Magnet(data[tc], data[tr], data[bc], data[br], mag))
+
+            #for timetodata in conf["rptdata"]:
+            #    if conf["type"] == "element":
+            #        pass
+            #    elif conf["type"] == "magnet":
+            #        pass
+            #    break
+        
 
     #del js["config"]
     #elements = [elem["history"] for elem in js.values() if elem["type"] == "element"]
