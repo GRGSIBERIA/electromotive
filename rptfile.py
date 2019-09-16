@@ -96,7 +96,7 @@ if __name__ == "__main__":
     if not os.path.isfile(reportpath) and not os.path.isfile(inputptah):
         printhelp()
     
-    binpath = os.path.splitext(reportpath)[0] + ".bin"
+    binpath = os.path.splitext(reportpath)[0] + ".brp"
 
     # 拡張子検査
     if not os.path.splitext(reportpath)[1] == ".rpt" and not os.path.splitext(inputpath)[1] == ".inp":

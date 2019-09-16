@@ -29,6 +29,7 @@ from config import Config
 """
 def writebinary(report: ReportFile, inp: InputFile,  path: str):
     with open(path, "wb") as f:
+        print("number of times: " + str(len(report.times)))
         pk = struct.pack("<L", len(report.times))
         f.write(pk)
 
@@ -36,15 +37,17 @@ def writebinary(report: ReportFile, inp: InputFile,  path: str):
             pk = struct.pack("<d", time)
             f.write(pk)
         
+        print("number of displacements: " + str(len(report.displacements.keys())))
         pk = struct.pack("<L", len(report.displacements.keys()))
         f.write(pk)
 
+        ba = bytes()
         for timeid, _ in enumerate(report.times):
             for nodeid, displacement in report.displacements.items():
                 if nodeid in inp.nodes:
                     pos = displacement[timeid] + inp.nodes[nodeid]
-                    pk = struct.pack("<L3d", nodeid, *pos)
-                    f.write(pk)
+                    ba += struct.pack("<L3d", nodeid, *pos)
+        f.write(ba)
 
 
 def readtimes(f: io.BufferedIOBase) -> List[float]:
@@ -71,6 +74,7 @@ class SequentialReportReader:
         print("number of nodes: " + str(self.numnodes))
         print("number of times: " + str(len(self.times)))
 
+
     def __del__(self):
         self.file.close()
     
@@ -92,7 +96,6 @@ class SequentialReportReader:
         self.count += 1
 
         return pos
-
 
 
 def readbinary(path: str) -> SequentialReportReader:
