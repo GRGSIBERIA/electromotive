@@ -13,11 +13,14 @@ class Magnet:
     def __init__(self, top: np.ndarray, topright: np.ndarray, btm: np.ndarray, btmright: np.ndarray, sigma: float):
         self.top = top
         self.topright = topright
-        self.topnrm = -(top-btm) / np.linalg.norm(top-btm)
+        norm = np.linalg.norm(top - btm)
+        self.topnrm = -(top-btm) / norm if norm > 0.0 else 0.0
 
         self.btm = btm
         self.btmright = btmright
-        self.btmnorm = -(btm-top) / np.linalg.norm(top-btm)
+        norm = np.linalg.norm(btm - top)
+        self.btmnorm = -(btm-top) / norm if norm > 0.0 else 0.0
 
         self.sigma = sigma
         self.inductance = 0.0
+        
