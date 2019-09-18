@@ -29,6 +29,7 @@ from config import Config
 """
 def writebinary(report: ReportFile, inp: InputFile,  path: str):
     with open(path, "wb") as f:
+        print("writing " + path)
         print("number of times: " + str(len(report.times)))
         pk = struct.pack("<L", len(report.times))
         f.write(pk)
@@ -41,13 +42,11 @@ def writebinary(report: ReportFile, inp: InputFile,  path: str):
         pk = struct.pack("<L", len(report.displacements.keys()))
         f.write(pk)
 
-        ba = bytes()
         for timeid, _ in enumerate(report.times):
             for nodeid, displacement in report.displacements.items():
-                if nodeid in inp.nodes:
-                    pos = displacement[timeid] + inp.nodes[nodeid]
-                    ba += struct.pack("<L3d", nodeid, *pos)
-        f.write(ba)
+                pos = displacement[timeid] + inp.nodes[nodeid]
+                ba = struct.pack("<L3d", nodeid, *pos)
+                f.write(ba)
 
 
 def readtimes(f: io.BufferedIOBase) -> List[float]:
@@ -84,11 +83,12 @@ class SequentialReportReader:
             raise StopIteration()
 
         chunksize = 8 * 3 + 4
+        bs = self.file.read(chunksize * len(self.numnodes))
 
         pos = {}
         for i in range(self.numnodes):
-            bs = self.file.read(chunksize)
-            unp = struct.unpack("<L3d", bs)
+            #bs = self.file.read(chunksize)
+            unp = struct.unpack_from("<L3d", bs, chunksize * i)
             nodeid = unp[0]
             disp = np.array(unp[1:])
             pos[nodeid] = disp
@@ -137,7 +137,9 @@ if __name__ == "__main__":
         if not validitem(key, val):
             continue
 
+        print("read input file: " + val["input"])
         inp = InputFile.open(val["input"])
+        print("read report file: " + val["report"])
         rep = ReportFile.open(val["report"], inp.maxnodeid)
 
         if flag == "-w":

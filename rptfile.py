@@ -6,6 +6,7 @@ def readfile(path):
         lines = f.readlines()
     return lines
 
+
 def makeheaders(lines):
     headers = {}
     for i in range(len(lines)):
@@ -18,6 +19,7 @@ def makeheaders(lines):
             headers[i+2] = header   # 実際に読み込み始める行数を挿入
     return headers
 
+
 def getenablenodes(headers, maxnodeid):
     nodeaxis = {}
     for lineid, header in headers.items():
@@ -26,6 +28,7 @@ def getenablenodes(headers, maxnodeid):
             axisid = int(header[3:4]) - 1
             nodeaxis[lineid] = {"nodeid": nodeid, "axisid": axisid}
     return nodeaxis
+
 
 def gettimes(nodeaxis, lines):
     firstline = list(nodeaxis)[0]
@@ -41,6 +44,7 @@ def gettimes(nodeaxis, lines):
         cnt += 1
     return times
 
+
 def setupdisplacements(nodeaxis, maxnodeid, positions, times, lines):
 
     for lineid, data in nodeaxis.items():
@@ -51,6 +55,8 @@ def setupdisplacements(nodeaxis, maxnodeid, positions, times, lines):
         if nodeid > maxnodeid:
             continue
         
+        #if nodeid not in positions:
+            #positions[nodeid] = [np.zeros(3) for _, _ in enumerate(times)]
         node = positions[nodeid]
 
         for timeid in range(len(times)):
@@ -62,6 +68,7 @@ class ReportFile:
     def __init__(self, lines, maxnodeid, nodeaxis):
         self.times = gettimes(nodeaxis, lines)
         self.displacements = {i: [np.zeros(3) for _ in range(len(self.times))] for i in range(maxnodeid+1)}
+        #self.displacements = {}
         setupdisplacements(nodeaxis, maxnodeid, self.displacements, self.times, lines)
     
     @classmethod
