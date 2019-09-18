@@ -86,6 +86,7 @@ import time
 import os.path
 from inpfile import InputFile
 
+
 def printhelp():
     print("python report.py [input path] [report path]")
     sys.exit()

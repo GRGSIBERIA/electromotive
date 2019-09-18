@@ -108,6 +108,9 @@ def solve(path: str):
                 br = conf["bottom"]["right"]
                 mag = conf["magnetic charge"]
                 magnets.append(Magnet(data[tc], data[tr], data[bc], data[br], mag))
+                # TODO:
+                # Magnetには座標ではなく変位が入っているのでゼロ除算が起きている
+                # 変位から座標値を追加する方法を検討しなければならない
 
 
 def printhelp():
@@ -137,6 +140,7 @@ if __name__ == "__main__":
         printhelp()
     else:
         solve(sys.argv[-1])
+
 
 """
     times, magnets, outputpath, wavpath, srate = solve(sys.argv[1])

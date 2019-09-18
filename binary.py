@@ -9,6 +9,7 @@ from rptfile import ReportFile
 from inpfile import InputFile
 from config import Config
 
+
 """書き込みフォーマット
 4 byte int 時刻数, t
 8*t byte double 時刻
