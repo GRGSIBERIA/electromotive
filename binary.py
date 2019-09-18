@@ -46,7 +46,7 @@ def writebinary(report: ReportFile, inp: InputFile,  path: str):
             ba = bytes(0)
             for nodeid, displacement in report.displacements.items():
                 if nodeid in inp.nodes:
-                    pos = displacement[timeid] + inp.nodes[nodeid]
+                    pos = displacement[timeid]
                     ba += struct.pack("<L3d", nodeid, *pos)
             f.write(ba)
 
