@@ -85,7 +85,7 @@ class SequentialReportReader:
             raise StopIteration()
 
         chunksize = 8 * 3 + 4
-        bs = self.file.read(chunksize * len(self.numnodes))
+        bs = self.file.read(chunksize * self.numnodes)
 
         pos = {}
         for i in range(self.numnodes):

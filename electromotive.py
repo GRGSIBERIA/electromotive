@@ -121,19 +121,22 @@ def printhelp():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) >= 2:
-        printhelp()
-    if not os.path.exists(sys.argv[-1]):
-        printhelp()
+    # 検査
+    validation = [not os.path.exists(sys.argv[-1])]
+    for val in validation:
+        if val:
+            printhelp()
+            sys.exit()
 
     commands = {c: 1 for c in sys.argv[1:-1]}
 
     if "-si" in commands:
-        pass
-    elif "-h" in commands:
+        summarizeinpfile(sys.argv[-1])
+    
+    if "-h" in commands:
         printhelp()
-
-    solve(sys.argv[1])
+    else:
+        solve(sys.argv[-1])
 
 """
     times, magnets, outputpath, wavpath, srate = solve(sys.argv[1])
