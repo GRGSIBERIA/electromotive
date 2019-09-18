@@ -43,10 +43,12 @@ def writebinary(report: ReportFile, inp: InputFile,  path: str):
         f.write(pk)
 
         for timeid, _ in enumerate(report.times):
+            ba = bytes(0)
             for nodeid, displacement in report.displacements.items():
-                pos = displacement[timeid] + inp.nodes[nodeid]
-                ba = struct.pack("<L3d", nodeid, *pos)
-                f.write(ba)
+                if nodeid in inp.nodes:
+                    pos = displacement[timeid] + inp.nodes[nodeid]
+                    ba += struct.pack("<L3d", nodeid, *pos)
+            f.write(ba)
 
 
 def readtimes(f: io.BufferedIOBase) -> List[float]:
