@@ -110,11 +110,28 @@ def solve(path: str):
                 magnets.append(Magnet(data[tc], data[tr], data[bc], data[br], mag))
 
 
+def printhelp():
+    print("python electromotive.py [options] [configure json file path]")
+    print("[options]")
+    print("    -a     analyzes the electromotive from a configure json file.")
+    print("    -si    summarizes an input file.")
+    print("    -h     shows a help.")
+    print("[configure json file path]")
+    print("    This is a required option.")
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("python electromotive.py [configure json file path]")
-    if not os.path.exists(sys.argv[1]):
-        print("python electromotive.py [configure json file path]")
+    if len(sys.argv) >= 2:
+        printhelp()
+    if not os.path.exists(sys.argv[-1]):
+        printhelp()
+
+    commands = {c: 1 for c in sys.argv[1:-1]}
+
+    if "-si" in commands:
+        pass
+    elif "-h" in commands:
+        printhelp()
 
     solve(sys.argv[1])
 
