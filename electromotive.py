@@ -126,7 +126,6 @@ def solve(path: str):
     
     times = setupconfiguration(js)
 
-
     inductance = []
     
     numtimes = len(times)
