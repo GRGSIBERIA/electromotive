@@ -55,8 +55,8 @@ def setupdisplacements(nodeaxis, maxnodeid, positions, times, lines):
         if nodeid > maxnodeid:
             continue
         
-        #if nodeid not in positions:
-            #positions[nodeid] = [np.zeros(3) for _, _ in enumerate(times)]
+        if nodeid not in positions:
+            positions[nodeid] = [np.zeros(3) for _, _ in enumerate(times)]
         node = positions[nodeid]
 
         for timeid in range(len(times)):
@@ -67,8 +67,8 @@ def setupdisplacements(nodeaxis, maxnodeid, positions, times, lines):
 class ReportFile:
     def __init__(self, lines, maxnodeid, nodeaxis):
         self.times = gettimes(nodeaxis, lines)
-        self.displacements = {i: [np.zeros(3) for _ in range(len(self.times))] for i in range(maxnodeid+1)}
-        #self.displacements = {}
+        #self.displacements = {i: [np.zeros(3) for _ in range(len(self.times))] for i in range(maxnodeid+1)}
+        self.displacements = {}
         setupdisplacements(nodeaxis, maxnodeid, self.displacements, self.times, lines)
     
     @classmethod
@@ -85,6 +85,7 @@ import sys
 import time
 import os.path
 from inpfile import InputFile
+
 
 def printhelp():
     print("python report.py [input path] [report path]")
