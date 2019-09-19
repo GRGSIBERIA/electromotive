@@ -120,7 +120,7 @@ def receiveelementsandmagnetseachtime(js):
     return elements, magnets
 
 
-def solve(path: str):
+def solve(path: str) -> np.ndarray:
     print("--- start import ---")
     js = Config.open(path)
     
@@ -134,6 +134,8 @@ def solve(path: str):
     for t in times:
         elements, magnets = receiveelementsandmagnetseachtime(js)
         print(len(elements))
+    
+    return np.array(inductance)
 
 
 def printhelp():
@@ -141,6 +143,7 @@ def printhelp():
     print("[options]")
     print("    -a     analyzes the electromotive from a configure json file.")
     print("    -si    summaries an input file.")
+    print("    -w     bakes .wav file.")
     print("    -h     shows a help.")
     print("[configure json file path]")
     print("    This is a required option.")
@@ -165,7 +168,12 @@ if __name__ == "__main__":
     if "-h" in commands:
         printhelp()
     else:
-        solve(sys.argv[-1])
+        inductance = solve(sys.argv[-1])
+
+        if "-w" in commands:
+            pass
+
+
 
     print("--- exit electromotive ---")
 
