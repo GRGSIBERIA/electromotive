@@ -55,10 +55,7 @@ def readingconfiguration(part: str, conf) -> List[float]:
     return brp.times
 
 
-def solve(path: str):
-    print("--- start import ---")
-    js = Config.open(path)
-
+def setupconfiguration(js) -> List[float]:
     times = None
 
     # 計算の下準備
@@ -81,33 +78,61 @@ def solve(path: str):
     print("--- done import all ---")
     print("--- start solving electromotive ---")
 
+    return times
+
+
+def receiveelementsandmagnetseachtime(js):
+    elements = []
+    magnets = []
+
+    for part, conf in js.items():
+        if part == "config":
+            continue
+
+        try:
+            data = conf["rptdata"].read()
+        except StopIteration:
+            break
+
+        inp = conf["inpdata"]
+
+        if conf["type"] == "element":
+            mag = conf["magnetic permeability"]
+            for nid, pos in data.items():
+                inp.nodes[nid] += pos
+            elements += [Element(pos, mag) for _, pos in inp.nodes.items()]
+
+        elif conf["type"] == "magnet":
+            tc = conf["top"]["center"]
+            tr = conf["top"]["right"]
+            bc = conf["bottom"]["center"]
+            br = conf["bottom"]["right"]
+            mag = conf["magnetic charge"]
+            tcp = data[tc] + inp.nodes[tc]
+            trp = data[tr] + inp.nodes[tr]
+            bcp = data[bc] + inp.nodes[bc]
+            brp = data[br] + inp.nodes[br]
+            
+            magnets.append(Magnet(tcp, trp, bcp, brp, mag))
+            # TODO: CLEAR
+            # Magnetには座標ではなく変位が入っているのでゼロ除算が起きている
+            # 変位から座標値を追加する方法を検討しなければならない
+    return elements, magnets
+
+
+def solve(path: str):
+    print("--- start import ---")
+    js = Config.open(path)
+
+    times = setupconfiguration(js)
     inductance = []
+    
     numtimes = len(times)
     difftimes = 1.0 / float(numtimes)
 
     for t in times:
-        elements = []
-        magnets = []
-
-        for part, conf in js.items():
-            if part == "config":
-                continue
-
-            try:
-                data = conf["rptdata"].read()
-            except StopIteration:
-                break
-
-            if conf["type"] == "element":
-                mag = conf["magnetic permeability"]
-                elements += [Element(pos, mag) for _, pos in data.items()]
-            elif conf["type"] == "magnet":
-                tc = conf["top"]["center"]
-                tr = conf["top"]["right"]
-                bc = conf["bottom"]["center"]
-                br = conf["bottom"]["right"]
-                mag = conf["magnetic charge"]
-                magnets.append(Magnet(data[tc], data[tr], data[bc], data[br], mag))
+        elements, magnets = receiveelementsandmagnetseachtime(js)
+        print(len(elements))
 
 
 def printhelp():
@@ -135,10 +160,14 @@ if __name__ == "__main__":
 
     if "-si" in commands:
         summarizeinpfile(sys.argv[-1])
-    elif "-h" in commands:
+    
+    if "-h" in commands:
         printhelp()
     else:
-        solve(sys.argv[1])
+        solve(sys.argv[-1])
+
+    print("--- exit electromotive ---")
+
 
 """
     times, magnets, outputpath, wavpath, srate = solve(sys.argv[1])

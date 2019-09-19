@@ -9,6 +9,7 @@ from rptfile import ReportFile
 from inpfile import InputFile
 from config import Config
 
+
 """書き込みフォーマット
 4 byte int 時刻数, t
 8*t byte double 時刻
@@ -43,10 +44,12 @@ def writebinary(report: ReportFile, inp: InputFile,  path: str):
         f.write(pk)
 
         for timeid, _ in enumerate(report.times):
+            ba = bytes(0)
             for nodeid, displacement in report.displacements.items():
-                pos = displacement[timeid] + inp.nodes[nodeid]
-                ba = struct.pack("<L3d", nodeid, *pos)
-                f.write(ba)
+                if nodeid in inp.nodes:
+                    pos = displacement[timeid]
+                    ba += struct.pack("<L3d", nodeid, *pos)
+            f.write(ba)
 
 
 def readtimes(f: io.BufferedIOBase) -> List[float]:
@@ -83,7 +86,7 @@ class SequentialReportReader:
             raise StopIteration()
 
         chunksize = 8 * 3 + 4
-        bs = self.file.read(chunksize * len(self.numnodes))
+        bs = self.file.read(chunksize * self.numnodes)
 
         pos = {}
         for i in range(self.numnodes):
