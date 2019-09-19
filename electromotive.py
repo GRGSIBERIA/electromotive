@@ -75,6 +75,9 @@ def setupconfiguration(js) -> List[float]:
 
         print("done import {} - {} sec".format(part, time.time() - start))
 
+    print("--- done import all ---")
+    print("--- start solving electromotive ---")
+
     return times
 
 
@@ -122,16 +125,14 @@ def solve(path: str):
     js = Config.open(path)
 
     times = setupconfiguration(js)
-
-    print("--- done import all ---")
-    print("--- start solving electromotive ---")
-
     inductance = []
+    
     numtimes = len(times)
     difftimes = 1.0 / float(numtimes)
 
     for t in times:
         elements, magnets = receiveelementsandmagnetseachtime(js)
+        print(len(elements))
 
 
 def printhelp():
