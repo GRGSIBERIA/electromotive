@@ -14,13 +14,12 @@ class Magnet:
         self.top = top
         self.topright = topright
         norm = np.linalg.norm(top - btm)
-        self.topnrm = -(top-btm) / norm if norm > 0.0 else 0.0
+        self.topnrm = -(top-btm) / norm
 
         self.btm = btm
         self.btmright = btmright
         norm = np.linalg.norm(btm - top)
-        self.btmnorm = -(btm-top) / norm if norm > 0.0 else 0.0
+        self.btmnorm = -(btm-top) / norm
 
         self.sigma = sigma
         self.inductance = 0.0
-        

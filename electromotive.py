@@ -101,14 +101,21 @@ def solve(path: str):
             if conf["type"] == "element":
                 mag = conf["magnetic permeability"]
                 elements += [Element(pos, mag) for _, pos in data.items()]
+
             elif conf["type"] == "magnet":
+                inp = conf["inpdata"]
                 tc = conf["top"]["center"]
                 tr = conf["top"]["right"]
                 bc = conf["bottom"]["center"]
                 br = conf["bottom"]["right"]
                 mag = conf["magnetic charge"]
-                magnets.append(Magnet(data[tc], data[tr], data[bc], data[br], mag))
-                # TODO:
+                tcp = data[tc] + inp.nodes[tc]
+                trp = data[tr] + inp.nodes[tr]
+                bcp = data[bc] + inp.nodes[bc]
+                brp = data[br] + inp.nodes[br]
+                
+                magnets.append(Magnet(tcp, trp, bcp, brp, mag))
+                # TODO: CLEAR
                 # Magnetには座標ではなく変位が入っているのでゼロ除算が起きている
                 # 変位から座標値を追加する方法を検討しなければならない
 
