@@ -56,3 +56,13 @@ class SolverBase:
         for element in elements:
             total += func(magnet.top, element.centroid, element.direction, magnet.radius, element.magnetized)
         magnet.inducedmagnetized = total
+
+
+    @classmethod
+    def magnetize(cls, element, magnets):
+        raise NotImplementedError()
+
+
+    @classmethod
+    def induce(cls, elements, magnet):
+        raise NotImplementedError()

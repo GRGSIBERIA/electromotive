@@ -44,20 +44,32 @@ def detectsolver(solvername: str) -> SolverBase:
 
 
 class Solver:
-    @classmethod
-    def computemagnetize(cls, solvername: str, elements: List[Element], magnets: List[Magnet]):
-        solver = detectsolver(solvername)
-        
-        for element in elements:
-            solver.magnetize(element, magnets)
+    def __init__(self, solvername: str):
+        self.solver = detectsolver(solvername)
 
+
+    def computemagnetize(self, elements: List[Element], magnets: List[Magnet]):
+        for element in elements:
+            self.solver.magnetize(element, magnets)
+
+
+    def computeinduce(self, elements: List[Element], magnets: List[Magnet]):
+        for magnet in magnets:
+            self.solver.induce(elements, magnet)
+
+
+    def computeinductance(self, elements: List[Element], magnets: List[Magnet]):
+        pass
+
+
+    @classmethod
+    def computeinduce(cls, sorvername: str, elements: List[Element], magnets: List[Magnet]):
+        solver = detectsolver(solvername)
 
     @classmethod
     def solve(cls, solvername: str, elements: List[Element], magnets: List[Magnet]):
         numoftimes = len(times)
         detectdirection(parts, magnets, numoftimes)
-
-        
         
         # 磁性体を磁化させるときの計算
         start = time.time()
