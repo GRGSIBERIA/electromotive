@@ -81,14 +81,10 @@ class InputFile:
 
         return InputFile(nodeCount, elemCount, maxnodeid, nodes, elements)
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("python inpfile.py [config file path]")
-        sys.exit()
 
-    confpath = sys.argv[1]
+def summarizeinpfile(confpath: str):
     js = Config.open(confpath)
-    print("element name: number of valid 1-dim node")
+    print("--- summaries the number of 1-dim nodes ---")
     for name, value in js.items():
         if name == "config":
             continue
@@ -97,3 +93,15 @@ if __name__ == "__main__":
             inp = InputFile.open(value["input"])
             print("{0}: {1}".format(name, inp.maxnodeid))
             
+
+import os.path
+
+if __name__ == "__main__":
+    confpath = sys.argv[1]
+
+    if len(sys.argv) < 2 or not os.path.exists(sys.argv[1]):
+        print("python inpfile.py [config file path]")
+        sys.exit()
+        
+    summarizeinpfile(confpath)
+    

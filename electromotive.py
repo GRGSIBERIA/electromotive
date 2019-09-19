@@ -139,10 +139,13 @@ def printhelp():
     print("python electromotive.py [options] [configure json file path]")
     print("[options]")
     print("    -a     analyzes the electromotive from a configure json file.")
-    print("    -si    summarizes an input file.")
+    print("    -si    summaries an input file.")
     print("    -h     shows a help.")
     print("[configure json file path]")
     print("    This is a required option.")
+
+
+from inpfile import summarizeinpfile
 
 
 if __name__ == "__main__":
