@@ -101,6 +101,9 @@ def receiveelementsandmagnetseachtime(js):
             for nid, pos in data.items():
                 inp.nodes[nid] += pos
             elements += [Element(pos, mag) for _, pos in inp.nodes.items()]
+            # TODO:
+            # Elementはsrc/dataset.pyを使っているので，solvers/dataset.pyのものを使う
+            # いくつか修正する必要があるらしい
 
         elif conf["type"] == "magnet":
             tc = conf["top"]["center"]
