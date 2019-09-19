@@ -28,23 +28,36 @@ def detectdirection(elements, magnets, numoftimes):
     print("detect direction -- {} sec".format(time.time() - start))
 
 
+def detectsolver(solvername: str) -> SolverBase:
+    solver = None
+    if solvername == "cone":
+        solver = ConeSolver
+    elif solvername == "nabla":
+        solver = NablaSolver
+    elif solvername == "integrate":
+        solver = IntegrateSolver
+    elif solvername == "rect":
+        solver = RectSolver
+    else:
+        raise Exception("Can't use solver name ({}).".format(solvername))
+    return solver
+
+
 class Solver:
     @classmethod
-    def solve(cls, solvername: str, parts, magnets, times):
+    def computemagnetize(cls, solvername: str, elements: List[Element], magnets: List[Magnet]):
+        solver = detectsolver(solvername)
+        
+        for element in elements:
+            solver.magnetize(element, magnets)
+
+
+    @classmethod
+    def solve(cls, solvername: str, elements: List[Element], magnets: List[Magnet]):
         numoftimes = len(times)
         detectdirection(parts, magnets, numoftimes)
 
-        solver = None
-        if solvername == "cone":
-            solver = ConeSolver
-        elif solvername == "nabla":
-            solver = NablaSolver
-        elif solvername == "integrate":
-            solver = IntegrateSolver
-        elif solvername == "rect":
-            solver = RectSolver
-        else:
-            raise Exception("Can't use solver name ({}).".format(solvername))
+        
         
         # 磁性体を磁化させるときの計算
         start = time.time()

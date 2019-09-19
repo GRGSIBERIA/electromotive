@@ -13,7 +13,7 @@ from config import Config
 from inpfile import InputFile
 from rptfile import ReportFile
 #from provider import ElementProvider, MagnetProvider
-#from solver import Solver
+from solver import Solver
 from binary import writebinary, readbinary, SequentialReportReader
 from src.dataset import Element, Magnet
 
@@ -133,6 +133,9 @@ def solve(path: str) -> np.ndarray:
 
     for t in times:
         elements, magnets = receiveelementsandmagnetseachtime(js)
+
+        Solver.computemagnetize(js["config"]["solver"], elements, magnets)
+        
         print(len(elements))
     
     return np.array(inductance)
