@@ -130,6 +130,15 @@ def receiveelementsandmagnetseachtime(js):
     return elements, magnets
 
 
+def computemagneticfield(js, solver, append_magnets):
+    elements, magnets = receiveelementsandmagnetseachtime(js)
+        
+    solver.computemagnetize(elements, magnets)
+    solver.computeinduce(elements, magnets)
+    
+    append_magnets(magnets)
+
+
 def solve(path: str) -> List[List[Magnet]]:
     print("--- start import ---")
     js = Config.open(path)
@@ -143,15 +152,17 @@ def solve(path: str) -> List[List[Magnet]]:
     difftimes = 1.0 / float(numtimes)
     solver = Solver(js["config"]["solver"])
 
-    print("--- start solving magnetic field ---")
+    print("----- start solving magnetic field ---")
+
+    numtimes = len(times)
+    percentile = 0.0
+    dper = 100.0 / float(numtimes)
 
     for t in times:
-        elements, magnets = receiveelementsandmagnetseachtime(js)
-        
-        solver.computemagnetize(elements, magnets)
-        solver.computeinduce(elements, magnets)
-        
-        append_magnets(magnets)
+        computemagneticfield(js, solver, append_magnets)
+
+        percentile += dper
+        print(percentile, 100.0)
     
     solver.computeinductance(result_magnets)
 
