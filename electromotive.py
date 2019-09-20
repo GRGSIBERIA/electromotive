@@ -152,7 +152,6 @@ def solve(path: str) -> List[List[Magnet]]:
         solver.computeinduce(elements, magnets)
         
         append_magnets(magnets)
-        print([mag.inducedvoltage for mag in magnets])
     
     solver.computeinductance(result_magnets)
 
