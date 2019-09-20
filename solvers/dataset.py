@@ -1,12 +1,14 @@
 #-*- encoding: utf-8
+from typing import List
 import numpy as np
 from numba import jit, prange, jitclass, f8
 
 class Element:
-    def __init__(self, ns):
+    def __init__(self, ns: List[np.ndarray], mag: float):
         self.volume = calcvolume(ns[0], ns[1], ns[2], ns[3])
         self.centroid = calccentroid(ns[0], ns[1], ns[2], ns[3])
         self.direction = np.zeros(3)
+        self.magnetic_permeability = mag
         self.magnetized = 0.0
 
 @jit("f8(f8[:], f8[:], f8[:], f8[:])")
@@ -27,15 +29,22 @@ def calcforward(a, b):
     return c / np.linalg.norm(c)
 
 class Magnet:
-    def __init__(self, pos, topid, bottomid, topRid, bottomRid, magcharge):
-        self.top = pos[topid]
-        self.bottom = pos[bottomid]
-        self.topR = pos[topRid]
-        self.bottomR = pos[bottomRid]
+    def __init__(self, tcp: np.ndarray, trp: np.ndarray, bcp: np.ndarray, brp: np.ndarray, magcharge: float):
+        #self.top = pos[topid]
+        #self.bottom = pos[bottomid]
+        #self.topR = pos[topRid]
+        #self.bottomR = pos[bottomRid]
+
+        self.top = tcp
+        self.topR = trp
+        self.bottom = bcp
+        self.bottomR = brp
+
         self.center = (self.top + self.bottom) * 0.5
         self.topF = calcforward(self.top, self.bottom)
         self.bottomF = -self.topF
         self.radius = np.linalg.norm(self.topR - self.top)
         self.magcharge = magcharge
-        self.inducedmagnetized = 0.0
-        self.inducedvoltage = 0.0
+
+        self.inducedmagnetized = 0.0    # 鎖交磁場の誘導起電力
+        self.inducedvoltage = 0.0       # 誘導起電力
