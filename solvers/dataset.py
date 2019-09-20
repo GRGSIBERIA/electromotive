@@ -8,8 +8,9 @@ class Element:
         self.volume = calcvolume(ns[0], ns[1], ns[2], ns[3])
         self.centroid = calccentroid(ns[0], ns[1], ns[2], ns[3])
         self.direction = np.zeros(3)
-        self.magnetic_permeability = mag
-        self.magnetized = 0.0
+
+        self.magnetic_permeability = mag    # 比例定数
+        self.magnetized = 0.0               # 磁性体が磁化する磁束密度
 
 @jit("f8(f8[:], f8[:], f8[:], f8[:])")
 def calcvolume(n0, n1, n2, n3):

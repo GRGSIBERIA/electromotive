@@ -102,7 +102,7 @@ def receiveelementsandmagnetseachtime(js):
             for nid, pos in data.items():
                 inp.nodes[nid] += pos
             
-            for elem in inp.elements:
+            for eid, elem in inp.elements.items():
                 enode = [inp.nodes[nid] for nid in elem]
                 append_element(Element(enode, mag))
 
@@ -140,13 +140,15 @@ def solve(path: str) -> np.ndarray:
     
     numtimes = len(times)
     difftimes = 1.0 / float(numtimes)
+    solver = Solver(js["config"]["solver"])
 
     for t in times:
         elements, magnets = receiveelementsandmagnetseachtime(js)
+        print(t)
 
-        Solver.computemagnetize(js["config"]["solver"], elements, magnets)
+        #Solver.computemagnetize(js["config"]["solver"], elements, magnets)
         
-        print(len(elements))
+        #print(len(elements))
     
     return np.array(inductance)
 
