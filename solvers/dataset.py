@@ -19,7 +19,7 @@ def calcvolume(n0, n1, n2, n3):
 
 @jit("f8[:](f8[:], f8[:], f8[:], f8[:])", nopython=True)
 def calccentroid(n0, n1, n2, n3):
-    centroid = np.zeros(3)
+    #centroid = np.zeros(3)
     centroid = n0 + n1 + n2 + n3
     return centroid * 0.25
 

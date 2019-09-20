@@ -14,32 +14,20 @@ def cross(a, b):
         a[0] * b[1] - a[1] * b[0]])
 
 
-@jit("f8(f8[:], f8[:], f8[:], f8[:], f8, f8, f8)", nopython=True)
-def inducevoltage(apos:np.ndarray, bpos:np.ndarray, magposA:np.ndarray, magposB:np.ndarray, phiA:float, phiB:float, deltatime:float):
-    a = apos - magposA
-    b = bpos - magposB
-    dx = b - a
-    dv = dx / deltatime
+@jit("f8(f8, f8, f8)", nopython=True)
+def inducevoltage(phiA:float, phiB:float, deltatime:float):
     dphi = phiB - phiA
-    total = 0.0
-    for i in range(3):
-        if dv[i] != 0.0:
-            total += dphi / dx[i] * dv[i]
-    return total
-
+    return dphi / deltatime
 
 
 class SolverBase:
     """ソルバーのベースクラス，誘導起電力を求める式は共通
     """
     @classmethod
-    def voltage(cls, elemA:List[Element], elemB:List[Element], magnetA:Magnet, magnetB:Magnet, deltatime:float):
+    def voltage(cls, magnetA:Magnet, magnetB:Magnet, deltatime:float):
         # 通過する磁束の時刻歴をもとに誘導起電力を計算
-        for i, _ in enumerate(elemA):
-            magnetA.inducedvoltage += inducevoltage(
-                elemA[i].centroid, elemB[i].centroid, 
-                magnetA.top, magnetB.top,
-                magnetA.inducedmagnetized, magnetB.inducedmagnetized, deltatime)
+        magnetA.inducedvoltage += inducevoltage(
+            magnetA.inducedmagnetized, magnetB.inducedmagnetized, deltatime)
 
     @classmethod
     def _magnetize(cls, element:Element, magnets:List[Magnet], func):

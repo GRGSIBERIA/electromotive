@@ -130,27 +130,33 @@ def receiveelementsandmagnetseachtime(js):
     return elements, magnets
 
 
-def solve(path: str) -> np.ndarray:
+def solve(path: str) -> List[List[Magnet]]:
     print("--- start import ---")
     js = Config.open(path)
     
     times = setupconfiguration(js)
 
-    inductance = []
+    result_magnets = [] # 誘導起電力を算出するのに必要
+    append_magnets = result_magnets.append
     
     numtimes = len(times)
     difftimes = 1.0 / float(numtimes)
     solver = Solver(js["config"]["solver"])
 
+    print("--- start solving magnetic field ---")
+
     for t in times:
         elements, magnets = receiveelementsandmagnetseachtime(js)
-        print(t)
-
-        #Solver.computemagnetize(js["config"]["solver"], elements, magnets)
         
-        #print(len(elements))
+        solver.computemagnetize(elements, magnets)
+        solver.computeinduce(elements, magnets)
+        
+        append_magnets(magnets)
+        print([mag.inducedvoltage for mag in magnets])
     
-    return np.array(inductance)
+    solver.computeinductance(result_magnets)
+
+    return result_magnets
 
 
 def printhelp():
@@ -187,8 +193,6 @@ if __name__ == "__main__":
 
         if "-w" in commands:
             pass
-
-
 
     print("--- exit electromotive ---")
 
