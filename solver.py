@@ -28,54 +28,40 @@ def detectdirection(elements, magnets, numoftimes):
     print("detect direction -- {} sec".format(time.time() - start))
 
 
+def detectsolver(solvername: str) -> SolverBase:
+    solver = None
+    if solvername == "cone":
+        solver = ConeSolver
+    elif solvername == "nabla":
+        solver = NablaSolver
+    elif solvername == "integrate":
+        solver = IntegrateSolver
+    elif solvername == "rect":
+        solver = RectSolver
+    else:
+        raise Exception("Can't use solver name ({}).".format(solvername))
+    return solver
+
+
 class Solver:
-    @classmethod
-    def solve(cls, solvername: str, parts, magnets, times):
-        numoftimes = len(times)
-        detectdirection(parts, magnets, numoftimes)
+    def __init__(self, solvername: str):
+        self.solver = detectsolver(solvername)
 
-        solver = None
-        if solvername == "cone":
-            solver = ConeSolver
-        elif solvername == "nabla":
-            solver = NablaSolver
-        elif solvername == "integrate":
-            solver = IntegrateSolver
-        elif solvername == "rect":
-            solver = RectSolver
-        else:
-            raise Exception("Can't use solver name ({}).".format(solvername))
-        
-        # 磁性体を磁化させるときの計算
-        start = time.time()
-        for timeid in range(numoftimes):
-            for part in parts:
-                mags = [mag[timeid] for mag in magnets]
-                for element in part[timeid]:
-                    solver.magnetize(element, mags)
-        print("done magnetization - {} sec".format(time.time() - start))
-        
-        # 磁極表面を通る磁束を計算
-        start = time.time()
-        for timeid in range(numoftimes):
-            elements = []
-            for element_history in parts:
-                elements.extend(element_history[timeid])
 
-            for magnet_history in magnets:
-                mag = magnet_history[timeid]
-                solver.induce(elements, mag)
-        print("done magnetic induction - {} sec".format(time.time() - start))
+    def computemagnetize(self, elements: List[Element], magnets: List[Magnet]):
+        for element in elements:
+            self.solver.magnetize(element, magnets)
 
-        # 誘導起電力の計算
-        start = time.time()
-        for timeid in range(numoftimes-1):
-            deltatime = times[timeid+1] - times[timeid]
-            for element_history in parts:
-                ea = element_history[timeid]
-                eb = element_history[timeid + 1]
-                for magnet_history in magnets:
-                    ma = magnet_history[timeid]
-                    mb = magnet_history[timeid + 1]
-                    solver.voltage(ea, eb, ma, mb, deltatime)
-        print("done induced electromotive - {} sec".format(time.time() - start))
+
+    def computeinduce(self, elements: List[Element], magnets: List[Magnet]):
+        for magnet in magnets:
+            self.solver.induce(elements, magnet)
+
+
+    def computeinductance(self, magnets: List[List[Magnet]], times: List[float]):
+        for i, t in enumerate(times[:-1]):
+            deltatime = times[i+1] - times[i]
+            magA = magnets[i]
+            magB = magnets[i+1]
+            for mi, _ in enumerate(magA):
+                self.solver.voltage(magA[mi], magB[mi], deltatime)

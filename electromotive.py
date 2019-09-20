@@ -12,10 +12,9 @@ import matplotlib.pyplot as plot
 from config import Config
 from inpfile import InputFile
 from rptfile import ReportFile
-#from provider import ElementProvider, MagnetProvider
-#from solver import Solver
+from solver import Solver
 from binary import writebinary, readbinary, SequentialReportReader
-from src.dataset import Element, Magnet
+from solvers.dataset import Element, Magnet
 
 
 # デバッグ便利関数
@@ -84,6 +83,8 @@ def setupconfiguration(js) -> List[float]:
 def receiveelementsandmagnetseachtime(js):
     elements = []
     magnets = []
+    append_element = elements.append
+    append_magnet = magnets.append
 
     for part, conf in js.items():
         if part == "config":
@@ -100,7 +101,14 @@ def receiveelementsandmagnetseachtime(js):
             mag = conf["magnetic permeability"]
             for nid, pos in data.items():
                 inp.nodes[nid] += pos
-            elements += [Element(pos, mag) for _, pos in inp.nodes.items()]
+            
+            for eid, elem in inp.elements.items():
+                enode = [inp.nodes[nid] for nid in elem]
+                append_element(Element(enode, mag))
+
+            # TODO:
+            # Elementはsrc/dataset.pyを使っているので，solvers/dataset.pyのものを使う
+            # いくつか修正する必要があるらしい
 
         elif conf["type"] == "magnet":
             tc = conf["top"]["center"]
@@ -113,29 +121,41 @@ def receiveelementsandmagnetseachtime(js):
             bcp = data[bc] + inp.nodes[bc]
             brp = data[br] + inp.nodes[br]
             
-            magnets.append(Magnet(tcp, trp, bcp, brp, mag))
+            append_magnet(Magnet(tcp, trp, bcp, brp, mag))
+
             # TODO: CLEAR
             # Magnetには座標ではなく変位が入っているのでゼロ除算が起きている
             # 変位から座標値を追加する方法を検討しなければならない
+
     return elements, magnets
 
 
-def solve(path: str) -> np.ndarray:
+def solve(path: str) -> List[List[Magnet]]:
     print("--- start import ---")
     js = Config.open(path)
     
     times = setupconfiguration(js)
 
-    inductance = []
+    result_magnets = [] # 誘導起電力を算出するのに必要
+    append_magnets = result_magnets.append
     
     numtimes = len(times)
     difftimes = 1.0 / float(numtimes)
+    solver = Solver(js["config"]["solver"])
+
+    print("--- start solving magnetic field ---")
 
     for t in times:
         elements, magnets = receiveelementsandmagnetseachtime(js)
-        print(len(elements))
+        
+        solver.computemagnetize(elements, magnets)
+        solver.computeinduce(elements, magnets)
+        
+        append_magnets(magnets)
     
-    return np.array(inductance)
+    solver.computeinductance(result_magnets)
+
+    return result_magnets
 
 
 def printhelp():
@@ -172,8 +192,6 @@ if __name__ == "__main__":
 
         if "-w" in commands:
             pass
-
-
 
     print("--- exit electromotive ---")
 
