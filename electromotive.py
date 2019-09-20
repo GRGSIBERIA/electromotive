@@ -7,6 +7,7 @@ import pprint
 import win_unicode_console
 from typing import List
 import os.path
+from concurrent import futures
 import numpy as np
 import matplotlib.pyplot as plot
 from config import Config
@@ -106,7 +107,7 @@ def receiveelementsandmagnetseachtime(js):
                 enode = [inp.nodes[nid] for nid in elem]
                 append_element(Element(enode, mag))
 
-            # TODO:
+            # TODO: CLEAR
             # Elementはsrc/dataset.pyを使っているので，solvers/dataset.pyのものを使う
             # いくつか修正する必要があるらしい
 
@@ -130,13 +131,13 @@ def receiveelementsandmagnetseachtime(js):
     return elements, magnets
 
 
-def computemagneticfield(js, solver, append_magnets):
+def computemagneticfield(js, solver, i, result_magnets):
     elements, magnets = receiveelementsandmagnetseachtime(js)
         
     solver.computemagnetize(elements, magnets)
     solver.computeinduce(elements, magnets)
     
-    append_magnets(magnets)
+    result_magnets[i] = magnets
 
 
 def solve(path: str) -> List[List[Magnet]]:
@@ -145,8 +146,7 @@ def solve(path: str) -> List[List[Magnet]]:
     
     times = setupconfiguration(js)
 
-    result_magnets = [] # 誘導起電力を算出するのに必要
-    append_magnets = result_magnets.append
+    result_magnets = [None for _ in times] # 誘導起電力を算出するのに必要
     
     numtimes = len(times)
     difftimes = 1.0 / float(numtimes)
@@ -158,13 +158,20 @@ def solve(path: str) -> List[List[Magnet]]:
     percentile = 0.0
     dper = 100.0 / float(numtimes)
 
-    for t in times:
-        computemagneticfield(js, solver, append_magnets)
+    # マルチスレッドで実行
+    with futures.ThreadPoolExecutor() as executor:
+        fs = []
+        for i, _ in enumerate(times):
+            fs.append(executor.submit(computemagneticfield, js, solver, i, result_magnets))
 
-        percentile += dper
-        print(percentile, 100.0)
+        for f in futures.as_completed(fs):
+            percentile += dper
+            print(percentile)
+
+            # TODO: UNCOMPLETE
+            # 残り時間を表示する部分を作る
     
-    solver.computeinductance(result_magnets)
+    solver.computeinductance(result_magnets, times)
 
     return result_magnets
 
@@ -175,6 +182,7 @@ def printhelp():
     print("    -a     analyzes the electromotive from a configure json file.")
     print("    -si    summaries an input file.")
     print("    -w     bakes .wav file.")
+    print("    -c     bakes .csv file.")
     print("    -h     shows a help.")
     print("[configure json file path]")
     print("    This is a required option.")
@@ -199,9 +207,14 @@ if __name__ == "__main__":
     if "-h" in commands:
         printhelp()
     else:
-        inductance = solve(sys.argv[-1])
+        magnets = solve(sys.argv[-1])
 
         if "-w" in commands:
+            # TODO: UNCOMPLETE
+            # magnetsの結果をファイルに出力する
+            pass
+        
+        if "-c" in commands:
             pass
 
     print("--- exit electromotive ---")
