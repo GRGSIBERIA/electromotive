@@ -24,15 +24,6 @@ win_unicode_console.enable()
 pp = pprint.PrettyPrinter(indent=4)
 
 
-def configuration(conf):
-    wavpath = None
-    srate = None
-    if "wav" in conf:
-        wavpath = conf["wav"]
-        srate = conf["sampling rate"]
-    return (conf["solver"], conf["output"], wavpath, srate)
-
-
 def readingconfiguration(part: str, conf) -> List[float]:
     print("----- import %s" % part)
 
@@ -62,7 +53,6 @@ def setupconfiguration(js) -> List[float]:
     # 計算の下準備
     for part, conf in js.items():
         if part == "config":
-            solvername, outputpath, wavpath, srate = configuration(conf)
             continue
 
         start = time.time()
