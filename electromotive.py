@@ -177,6 +177,7 @@ def printhelp():
     print("[summary]")
     print("    electromotive.py computes the inductance from each magnets.")
     print("    It works to require a config json file.")
+    print("    Default options -c (enabled to write .csv files).")
     print("[options]")
     print("    -a     analyzes the inductance from a config json file.")
     print("    -s     summaries input files each parts.")
