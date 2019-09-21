@@ -151,9 +151,11 @@ def solve(path: str) -> List[List[Magnet]]:
     
     solver = Solver(js["config"]["solver"])
 
-    print("----- start solving magnetic field ---")
+    print("----- start computing the magnetic field -----")
 
     progress = ProgressBar(len(times))
+
+    print(times[0])
 
     # マルチスレッドで実行
     with futures.ThreadPoolExecutor() as executor:
@@ -167,6 +169,9 @@ def solve(path: str) -> List[List[Magnet]]:
             # 残り時間を表示する部分を作る
 
         print("")   # 改行して再開する必要がある
+
+    print("----- start computing the inductance -----")
+
     solver.computeinductance(result_magnets, times)
 
     return result_magnets
@@ -177,7 +182,7 @@ def printhelp():
     print("[summary]")
     print("    electromotive.py computes the inductance from each magnets.")
     print("    It works to require a config json file.")
-    print("    Default options -c (enabled to write .csv files).")
+    print("    Default options -a -c (enabled to write .csv files).")
     print("[options]")
     print("    -a     analyzes the inductance from a config json file.")
     print("    -s     summaries input files each parts.")
@@ -207,6 +212,9 @@ if __name__ == "__main__":
     if "-h" in commands:
         printhelp()
     else:
+        commands["-a"] = 1
+        commands["-c"] = 1
+
         magnets = solve(sys.argv[-1])
 
         if "-w" in commands:
