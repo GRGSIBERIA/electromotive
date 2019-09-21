@@ -17,7 +17,7 @@ from solver import Solver
 from binary import writebinary, readbinary, SequentialReportReader
 from solvers.dataset import Element, Magnet
 from src.progressbar import ProgressBar
-
+from src.writecsv import writecsv
 
 # デバッグ便利関数
 win_unicode_console.enable()
@@ -77,8 +77,7 @@ def setupconfiguration(js) -> List[float]:
         print("done import {} - {} sec".format(part, time.time() - start))
 
     print("--- done import all ---")
-    print("--- start solving electromotive ---")
-
+    
     return times
 
 
@@ -150,6 +149,8 @@ def solve(path: str) -> List[List[Magnet]]:
 
     result_magnets = [None for _ in times] # 誘導起電力を算出するのに必要
     
+    print("--- start computing electromotive ---")
+
     solver = Solver(js["config"]["solver"])
 
     print("----- start computing the magnetic field -----")
@@ -173,7 +174,7 @@ def solve(path: str) -> List[List[Magnet]]:
 
     solver.computeinductance(result_magnets, times)
 
-    return result_magnets
+    return js, result_magnets
 
 
 def printhelp():
@@ -214,7 +215,7 @@ if __name__ == "__main__":
         commands["-a"] = 1
         commands["-c"] = 1
 
-        magnets = solve(sys.argv[-1])
+        js, magnets = solve(sys.argv[-1])
 
         if "-w" in commands:
             # TODO: UNCOMPLETE
@@ -222,7 +223,7 @@ if __name__ == "__main__":
             pass
         
         if "-c" in commands:
-            pass
+            writecsv(js, magnets)
 
     print("--- exit electromotive ---")
 
