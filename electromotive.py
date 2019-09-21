@@ -166,7 +166,7 @@ def solve(path: str) -> List[List[Magnet]]:
 
         for f in futures.as_completed(fs):
             percentile += dper
-            print(percentile)
+            print("\r{0}".format(percentile), end="")
 
             # TODO: UNCOMPLETE
             # 残り時間を表示する部分を作る
