@@ -58,7 +58,7 @@ def readtimes(f: io.BufferedIOBase) -> List[float]:
     times = [0.0 for _ in range(numof_times)]
     bs = f.read(8 * numof_times)
     for i, _ in enumerate(times):
-        times[i] = struct.unpack_from("<d", bs, 8 * i)
+        times[i] = struct.unpack_from("<d", bs, 8 * i)[0]
     return times
 
 
