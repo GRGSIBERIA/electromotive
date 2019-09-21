@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+data/
 
 # C extensions
 *.so
@@ -112,3 +113,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+tonegenerator.py
+nojima.py
