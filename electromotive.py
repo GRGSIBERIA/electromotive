@@ -16,6 +16,7 @@ from rptfile import ReportFile
 from solver import Solver
 from binary import writebinary, readbinary, SequentialReportReader
 from solvers.dataset import Element, Magnet
+from src.progressbar import ProgressBar
 
 
 # デバッグ便利関数
@@ -148,15 +149,11 @@ def solve(path: str) -> List[List[Magnet]]:
 
     result_magnets = [None for _ in times] # 誘導起電力を算出するのに必要
     
-    numtimes = len(times)
-    difftimes = 1.0 / float(numtimes)
     solver = Solver(js["config"]["solver"])
 
     print("----- start solving magnetic field ---")
 
-    numtimes = len(times)
-    percentile = 0.0
-    dper = 100.0 / float(numtimes)
+    progress = ProgressBar(len(times))
 
     # マルチスレッドで実行
     with futures.ThreadPoolExecutor() as executor:
@@ -165,12 +162,11 @@ def solve(path: str) -> List[List[Magnet]]:
             fs.append(executor.submit(computemagneticfield, js, solver, i, result_magnets))
 
         for f in futures.as_completed(fs):
-            percentile += dper
-            print(percentile)
-
-            # TODO: UNCOMPLETE
+            progress.incrementasprint()
+            # TODO: CLEAR
             # 残り時間を表示する部分を作る
-    
+
+        print("")   # 改行して再開する必要がある
     solver.computeinductance(result_magnets, times)
 
     return result_magnets
@@ -180,9 +176,9 @@ def printhelp():
     print("python electromotive.py [options] [configure json file path]")
     print("[options]")
     print("    -a     analyzes the electromotive from a configure json file.")
-    print("    -si    summaries an input file.")
-    print("    -w     bakes .wav file.")
-    print("    -c     bakes .csv file.")
+    print("    -s     summaries an input file.")
+    print("    -w     bakes the inductance in .wav files each magnets.")
+    print("    -c     bakes the inductance in .csv files each magnets.")
     print("    -h     shows a help.")
     print("[configure json file path]")
     print("    This is a required option.")
@@ -201,7 +197,7 @@ if __name__ == "__main__":
 
     commands = {c: 1 for c in sys.argv[1:-1]}
 
-    if "-si" in commands:
+    if "-s" in commands:
         summarizeinpfile(sys.argv[-1])
     
     if "-h" in commands:
