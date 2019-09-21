@@ -173,14 +173,17 @@ def solve(path: str) -> List[List[Magnet]]:
 
 
 def printhelp():
-    print("python electromotive.py [options] [configure json file path]")
+    print("python electromotive.py [options] [config json file path]")
+    print("[summary]")
+    print("    electromotive.py computes the inductance from each magnets.")
+    print("    It works to require a config json file.")
     print("[options]")
-    print("    -a     analyzes the electromotive from a configure json file.")
-    print("    -s     summaries an input file.")
+    print("    -a     analyzes the inductance from a config json file.")
+    print("    -s     summaries input files each parts.")
     print("    -w     bakes the inductance in .wav files each magnets.")
     print("    -c     bakes the inductance in .csv files each magnets.")
     print("    -h     shows a help.")
-    print("[configure json file path]")
+    print("[config json file path]")
     print("    This is a required option.")
 
 
