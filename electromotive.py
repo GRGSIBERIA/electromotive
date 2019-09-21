@@ -146,6 +146,7 @@ def solve(path: str) -> List[List[Magnet]]:
     js = Config.open(path)
     
     times = setupconfiguration(js)
+    js["config"]["times"] = times
 
     result_magnets = [None for _ in times] # 誘導起電力を算出するのに必要
     
@@ -154,8 +155,6 @@ def solve(path: str) -> List[List[Magnet]]:
     print("----- start computing the magnetic field -----")
 
     progress = ProgressBar(len(times))
-
-    print(times[0])
 
     # マルチスレッドで実行
     with futures.ThreadPoolExecutor() as executor:
