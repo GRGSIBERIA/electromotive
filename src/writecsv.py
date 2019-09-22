@@ -20,4 +20,5 @@ def writecsv(js, timemagnets):
             for mag in magnets:
                 rs += "," + str(mag.inducedvoltage)
             f.write(rs + "\n")
-        
+    print("export {}".format(js["config"]["csv"]))
+    

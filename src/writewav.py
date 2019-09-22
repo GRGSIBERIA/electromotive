@@ -33,6 +33,7 @@ def writewav(js, timemags: List[List[Magnet]]):
             path = part["wav"]
             times = extractinductance(i, timemags)
             createwav(path, times, js["config"]["sampling rate"])
+            print("extport {}".format(path))
 
 
 """
