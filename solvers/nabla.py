@@ -21,7 +21,7 @@ def magnetizenabla(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, 
 def calctopbottomnabla(centroid, top, bottom, topF, bottomF, radius, magcharge):
     top = magnetizenabla(centroid, top, topF, radius, magcharge)
     bottom = magnetizenabla(centroid, bottom, bottomF, radius, magcharge)
-    return top - bottom
+    return top + bottom
 
 
 class NablaSolver(SolverBase):

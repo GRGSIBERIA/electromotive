@@ -39,7 +39,7 @@ def magnetizeintegrate(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarr
 def calctopbottomintegrate(centroid, top, bottom, topF, bottomF, radius, magcharge):
     a = magnetizeintegrate(centroid, top, topF, radius, magcharge)
     b = magnetizeintegrate(centroid, bottom, bottomF, radius, magcharge)
-    return a - b
+    return a + b
 
 
 class IntegrateSolver(SolverBase):
