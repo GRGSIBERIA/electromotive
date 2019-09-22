@@ -18,6 +18,7 @@ from binary import writebinary, readbinary, SequentialReportReader
 from solvers.dataset import Element, Magnet
 from src.progressbar import ProgressBar
 from src.writecsv import writecsv
+from src.writewav import writewav
 
 # デバッグ便利関数
 win_unicode_console.enable()
@@ -25,7 +26,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 def readingconfiguration(part: str, conf) -> List[float]:
-    print("----- import %s" % part)
+    print("----- import %s -----" % part)
 
     inp = InputFile.open(conf["input"])
     print(conf["input"])
@@ -66,8 +67,6 @@ def setupconfiguration(js) -> List[float]:
 
         print("done import {} - {} sec".format(part, time.time() - start))
 
-    print("--- done import all ---")
-    
     return times
 
 
@@ -210,7 +209,7 @@ if __name__ == "__main__":
         if "-w" in commands:
             # TODO: UNCOMPLETE
             # magnetsの結果をファイルに出力する
-            pass
+            writewav(js, magnets)
         
         if "-c" in commands:
             writecsv(js, magnets)
