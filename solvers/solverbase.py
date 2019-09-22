@@ -26,6 +26,7 @@ def calcdirection(epos: np.ndarray, magnets: List[Magnet]):
         direction += magnet.center - epos
     return direction / np.linalg.norm(direction)
 
+
 class SolverBase:
     """ソルバーのベースクラス，誘導起電力を求める式は共通
     """

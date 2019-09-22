@@ -10,7 +10,7 @@ from solvers.solverbase import SolverBase
 from solvers.cone import ConeSolver
 from solvers.nabla import NablaSolver
 from solvers.rect import RectSolver
-
+from solvers.dz import HMSolver
 
 def detectsolver(solvername: str) -> SolverBase:
     solver = None
@@ -22,6 +22,8 @@ def detectsolver(solvername: str) -> SolverBase:
         solver = IntegrateSolver
     elif solvername == "rect":
         solver = RectSolver
+    elif solvername == "horton-moore":
+        solver = HMSolver
     else:
         raise Exception("Can't use solver name ({}).".format(solvername))
     return solver
