@@ -20,7 +20,7 @@ def magnetizecone(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, r
 def calctopbottomcone(centroid, top, bottom, topF, bottomF, radius, magcharge):
     top = magnetizecone(centroid, top, topF, radius, magcharge)
     bottom = magnetizecone(centroid, bottom, bottomF, radius, magcharge)
-    return top - bottom
+    return top + bottom
 
 
 class ConeSolver(SolverBase):

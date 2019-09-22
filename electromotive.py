@@ -17,24 +17,16 @@ from solver import Solver
 from binary import writebinary, readbinary, SequentialReportReader
 from solvers.dataset import Element, Magnet
 from src.progressbar import ProgressBar
-
+from src.writecsv import writecsv
+from src.writewav import writewav
 
 # デバッグ便利関数
 win_unicode_console.enable()
 pp = pprint.PrettyPrinter(indent=4)
 
 
-def configuration(conf):
-    wavpath = None
-    srate = None
-    if "wav" in conf:
-        wavpath = conf["wav"]
-        srate = conf["sampling rate"]
-    return (conf["solver"], conf["output"], wavpath, srate)
-
-
 def readingconfiguration(part: str, conf) -> List[float]:
-    print("----- import %s" % part)
+    print("----- import %s -----" % part)
 
     inp = InputFile.open(conf["input"])
     print(conf["input"])
@@ -62,7 +54,6 @@ def setupconfiguration(js) -> List[float]:
     # 計算の下準備
     for part, conf in js.items():
         if part == "config":
-            solvername, outputpath, wavpath, srate = configuration(conf)
             continue
 
         start = time.time()
@@ -75,9 +66,6 @@ def setupconfiguration(js) -> List[float]:
         times = times_temp
 
         print("done import {} - {} sec".format(part, time.time() - start))
-
-    print("--- done import all ---")
-    print("--- start solving electromotive ---")
 
     return times
 
@@ -146,12 +134,15 @@ def solve(path: str) -> List[List[Magnet]]:
     js = Config.open(path)
     
     times = setupconfiguration(js)
+    js["config"]["times"] = times
 
     result_magnets = [None for _ in times] # 誘導起電力を算出するのに必要
     
+    print("--- start computing electromotive ---")
+
     solver = Solver(js["config"]["solver"])
 
-    print("----- start solving magnetic field ---")
+    print("----- start computing the magnetic field -----")
 
     progress = ProgressBar(len(times))
 
@@ -167,9 +158,12 @@ def solve(path: str) -> List[List[Magnet]]:
             # 残り時間を表示する部分を作る
 
         print("")   # 改行して再開する必要がある
+
+    print("----- start computing the inductance -----")
+
     solver.computeinductance(result_magnets, times)
 
-    return result_magnets
+    return js, result_magnets
 
 
 def printhelp():
@@ -177,6 +171,7 @@ def printhelp():
     print("[summary]")
     print("    electromotive.py computes the inductance from each magnets.")
     print("    It works to require a config json file.")
+    print("    Default options -a -c (enabled to write .csv files).")
     print("[options]")
     print("    -a     analyzes the inductance from a config json file.")
     print("    -s     summaries input files each parts.")
@@ -206,15 +201,18 @@ if __name__ == "__main__":
     if "-h" in commands:
         printhelp()
     else:
-        magnets = solve(sys.argv[-1])
+        commands["-a"] = 1
+        commands["-c"] = 1
+
+        js, magnets = solve(sys.argv[-1])
 
         if "-w" in commands:
             # TODO: UNCOMPLETE
             # magnetsの結果をファイルに出力する
-            pass
+            writewav(js, magnets)
         
         if "-c" in commands:
-            pass
+            writecsv(js, magnets)
 
     print("--- exit electromotive ---")
 

@@ -12,22 +12,6 @@ from solvers.nabla import NablaSolver
 from solvers.rect import RectSolver
 
 
-def detectdirection(elements, magnets, numoftimes):
-    start = time.time()
-    for timeid in range(numoftimes):
-        for element_history in elements:
-            for element in element_history[timeid]:
-                direction = np.zeros(3)
-                for magnet_history in magnets:
-                    direction += magnet_history[timeid].center - element.centroid
-                try:
-                    direction /= float(len(magnets))
-                    element.direction = direction / np.linalg.norm(direction)
-                except ZeroDivisionError:
-                    element.direction = np.zeros(3)
-    print("detect direction -- {} sec".format(time.time() - start))
-
-
 def detectsolver(solvername: str) -> SolverBase:
     solver = None
     if solvername == "cone":

@@ -20,6 +20,12 @@ def inducevoltage(phiA:float, phiB:float, deltatime:float):
     return dphi / deltatime
 
 
+def calcdirection(epos: np.ndarray, magnets: List[Magnet]):
+    direction = np.zeros(3)
+    for magnet in magnets:
+        direction += magnet.center - epos
+    return direction / np.linalg.norm(direction)
+
 class SolverBase:
     """ソルバーのベースクラス，誘導起電力を求める式は共通
     """
@@ -29,6 +35,7 @@ class SolverBase:
         magnetA.inducedvoltage += inducevoltage(
             magnetA.inducedmagnetized, magnetB.inducedmagnetized, deltatime)
 
+
     @classmethod
     def _magnetize(cls, element:Element, magnets:List[Magnet], func):
         total = 0.0
@@ -37,12 +44,16 @@ class SolverBase:
                 element.centroid, magnet.top, magnet.bottom, 
                 magnet.topF, magnet.bottomF, magnet.radius, magnet.magcharge)
         element.magnetized = total
+        element.direction = calcdirection(element.centroid, magnets)
+
 
     @classmethod
     def _induce(cls, elements:List[Element], magnet:Magnet, func):
         total = 0.0
         for element in elements:
-            total += func(magnet.top, element.centroid, element.direction, magnet.radius, element.magnetized)
+            total += func(
+                magnet.top, element.centroid, element.direction, 
+                magnet.radius, element.magnetized)
         magnet.inducedmagnetized = total
 
 
