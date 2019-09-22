@@ -86,14 +86,15 @@ def receiveelementsandmagnetseachtime(js):
             break
 
         inp = conf["inpdata"]
+        nodes = {}
 
         if conf["type"] == "element":
             mag = conf["magnetic permeability"]
             for nid, pos in data.items():
-                inp.nodes[nid] += pos
+                nodes[nid] = inp.nodes[nid] + pos
             
             for eid, elem in inp.elements.items():
-                enode = [inp.nodes[nid] for nid in elem]
+                enode = [nodes[nid] for nid in elem]
                 append_element(Element(enode, mag))
 
             # TODO: CLEAR
