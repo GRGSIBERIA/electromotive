@@ -25,8 +25,8 @@ def writewav(js, timemags: List[List[Magnet]]):
     parts = []
     for part, conf in js.items():
         if "config" not in part:
-            if "magnet" in conf[part]["type"]:
-                parts.append(conf[part])
+            if "magnet" in js[part]["type"]:
+                parts.append(js[part])
     
     for i, part in enumerate(parts):
         if "wav" in part:
