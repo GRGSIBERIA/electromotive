@@ -22,7 +22,7 @@ def detectsolver(solvername: str) -> SolverBase:
         solver = IntegrateSolver
     elif solvername == "rect":
         solver = RectSolver
-    elif solvername == "horton-moore":
+    elif solvername == "horton-moore" or solvername == "dz":
         solver = HMSolver
     else:
         raise Exception("Can't use solver name ({}).".format(solvername))
