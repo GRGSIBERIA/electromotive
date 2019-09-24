@@ -11,8 +11,8 @@ def magnetizecone(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, r
     r = centroid - magnetpos
     upper = np.dot(front, r)
     length = np.linalg.norm(r)
-    under = length**3
-    area = 1./3. * np.pi * radius**2 * length
+    under = length**3.
+    area = 1./3. * np.pi * radius**2. * length
     return upper / under * area * magcharge
 
     
