@@ -89,13 +89,25 @@ def receiveelementsandmagnetseachtime(js):
         nodes = {}
 
         if conf["type"] == "element":
-            mag = conf["magnetic permeability"]
+            mag = float(conf["magnetic permeability"])
+            
             for nid, pos in data.items():
                 nodes[nid] = inp.nodes[nid] + pos
             
             for eid, elem in inp.elements.items():
-                enode = [nodes[nid] for nid in elem]
-                append_element(Element(enode, mag))
+                try:
+                    enode = [nodes[nid] for nid in elem]
+                    append_element(Element(enode, mag))
+                except KeyError:
+                    pass    # ノードが使われないだけなのでスルーする
+                    """
+                    # 理想的には以下のコードになる
+                    enode = []
+                    for nid in elem:
+                        if nid not in nodes:
+                            break
+                        enode.append(nodes[nid])
+                    """
 
             # TODO: CLEAR
             # Elementはsrc/dataset.pyを使っているので，solvers/dataset.pyのものを使う
@@ -106,13 +118,14 @@ def receiveelementsandmagnetseachtime(js):
             tr = conf["top"]["right"]
             bc = conf["bottom"]["center"]
             br = conf["bottom"]["right"]
-            mag = conf["magnetic charge"]
+            mag = float(conf["magnetic charge"])
             tcp = data[tc] + inp.nodes[tc]
             trp = data[tr] + inp.nodes[tr]
             bcp = data[bc] + inp.nodes[bc]
             brp = data[br] + inp.nodes[br]
             
-            append_magnet(Magnet(tcp, trp, bcp, brp, mag))
+            magnet = Magnet(tcp, trp, bcp, brp, mag)
+            append_magnet(magnet)
 
             # TODO: CLEAR
             # Magnetには座標ではなく変位が入っているのでゼロ除算が起きている
@@ -123,12 +136,13 @@ def receiveelementsandmagnetseachtime(js):
 
 def computemagneticfield(js, solver, i, result_magnets):
     elements, magnets = receiveelementsandmagnetseachtime(js)
-        
+    
     solver.computemagnetize(elements, magnets)
     solver.computeinduce(elements, magnets)
     
     result_magnets[i] = magnets
-
+    #return i, magnets
+    
 
 def solve(path: str) -> List[List[Magnet]]:
     print("--- start import ---")
@@ -154,6 +168,8 @@ def solve(path: str) -> List[List[Magnet]]:
             fs.append(executor.submit(computemagneticfield, js, solver, i, result_magnets))
 
         for f in futures.as_completed(fs):
+            #i, mags = f.result()
+            #result_magnets[i] = mags
             progress.incrementasprint()
             # TODO: CLEAR
             # 残り時間を表示する部分を作る
@@ -161,7 +177,7 @@ def solve(path: str) -> List[List[Magnet]]:
         print("")   # 改行して再開する必要がある
 
     print("----- start computing the inductance -----")
-
+    
     solver.computeinductance(result_magnets, times)
 
     return js, result_magnets
@@ -208,7 +224,7 @@ if __name__ == "__main__":
         js, magnets = solve(sys.argv[-1])
 
         if "-w" in commands:
-            # TODO: UNCOMPLETE
+            # TODO: CLEAR
             # magnetsの結果をファイルに出力する
             writewav(js, magnets)
         
