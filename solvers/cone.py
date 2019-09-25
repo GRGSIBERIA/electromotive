@@ -6,7 +6,7 @@ from solvers.solverbase import SolverBase
 from solvers.dataset import Element, Magnet
 
 
-@jit("f8(f8[:], f8[:], f8[:], f8, f8)", nopython=True)
+#@jit("f8(f8[:], f8[:], f8[:], f8, f8)", nopython=True)
 def magnetizecone(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, radius:float, magcharge:float):
     r = centroid - magnetpos
     upper = np.dot(front, r)
@@ -16,7 +16,7 @@ def magnetizecone(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, r
     return upper / under * area * magcharge
 
     
-@jit("f8(f8[:], f8[:], f8[:], f8[:], f8[:], f8, f8)", nopython=True)
+#@jit("f8(f8[:], f8[:], f8[:], f8[:], f8[:], f8, f8)", nopython=True)
 def calctopbottomcone(centroid, top, bottom, topF, bottomF, radius, magcharge):
     top = magnetizecone(centroid, top, topF, radius, magcharge)
     bottom = magnetizecone(centroid, bottom, bottomF, radius, magcharge)

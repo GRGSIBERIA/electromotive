@@ -4,7 +4,8 @@ import time
 import numpy as np 
 from scipy.integrate import dblquad
 from numba import jit, prange
-from provider import Element, Magnet
+from solvers.dataset import Element, Magnet
+#from provider import Element, Magnet
 
 from solvers.solverbase import SolverBase
 from solvers.cone import ConeSolver

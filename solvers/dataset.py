@@ -12,19 +12,19 @@ class Element:
         self.magnetic_permeability = mag    # 比例定数
         self.magnetized = 0.0               # 磁性体が磁化する磁束密度
 
-@jit("f8(f8[:], f8[:], f8[:], f8[:])")
+#@jit("f8(f8[:], f8[:], f8[:], f8[:])")
 def calcvolume(n0, n1, n2, n3):
     v = np.array([n1-n0, n2-n0, n3-n0])
     return 1./6. * np.abs(np.linalg.det(v))
 
-@jit("f8[:](f8[:], f8[:], f8[:], f8[:])", nopython=True)
+#@jit("f8[:](f8[:], f8[:], f8[:], f8[:])", nopython=True)
 def calccentroid(n0, n1, n2, n3):
     #centroid = np.zeros(3)
     centroid = n0 + n1 + n2 + n3
     return centroid * 0.25
 
     
-@jit("f8[:](f8[:], f8[:])", nopython=True)
+#@jit("f8[:](f8[:], f8[:])", nopython=True)
 def calcforward(a, b):
     c = -(b - a)
     return c / np.linalg.norm(c)

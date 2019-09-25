@@ -6,7 +6,7 @@ from solvers.dataset import Element, Magnet
 
 
 
-@jit("f8[:](f8[:], f8[:])", nopython=True)
+#@jit("f8[:](f8[:], f8[:])", nopython=True)
 def cross(a, b):
     return np.array([
         a[1] * b[2] - a[2] * b[1],
@@ -14,7 +14,7 @@ def cross(a, b):
         a[0] * b[1] - a[1] * b[0]])
 
 
-@jit("f8(f8, f8, f8)", nopython=True)
+#@jit("f8(f8, f8, f8)", nopython=True)
 def inducevoltage(phiA:float, phiB:float, deltatime:float):
     dphi = phiB - phiA
     return dphi / deltatime

@@ -6,7 +6,7 @@ from solvers.solverbase import SolverBase
 from solvers.dataset import Element, Magnet
 
 
-@jit("f8(f8[:], f8[:], f8[:], f8, f8)", nopython=True)
+#@jit("f8(f8[:], f8[:], f8[:], f8, f8)", nopython=True)
 def magnetizedz(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, radius:float, magcharge:float):
     r = centroid - magnetpos
     length = np.linalg.norm(r)
@@ -14,7 +14,7 @@ def magnetizedz(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, rad
     return magcharge * (np.dot(front, r) / length3)
 
 
-@jit("f8(f8[:], f8[:], f8[:], f8[:], f8[:], f8, f8)", nopython=True)
+#@jit("f8(f8[:], f8[:], f8[:], f8[:], f8[:], f8, f8)", nopython=True)
 def calctopbottomdz(centroid, top, bottom, topF, bottomF, radius, magcharge):
     top = magnetizedz(centroid, top, topF, radius, magcharge)
     bottom = magnetizedz(centroid, bottom, bottomF, radius, magcharge)
