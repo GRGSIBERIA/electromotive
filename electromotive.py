@@ -162,20 +162,26 @@ def solve(path: str) -> List[List[Magnet]]:
     progress = ProgressBar(len(times))
 
     # マルチスレッドで実行
-    with futures.ThreadPoolExecutor() as executor:
-        fs = []
+    multithread = False
+    if multithread:
+        with futures.ThreadPoolExecutor() as executor:
+            fs = []
+            for i, _ in enumerate(times):
+                fs.append(executor.submit(computemagneticfield, js, solver, i, result_magnets))
+
+            for f in futures.as_completed(fs):
+                progress.incrementasprint()
+                # TODO: CLEAR
+                # 残り時間を表示する部分を作る
+                # TODO:
+                # 共有メモリに対してアクセス違反か何かがあり，高周波ノイズを発生させてしまっている
+                # Numbaも関係しているらしくて根が深い
+    else:
         for i, _ in enumerate(times):
-            fs.append(executor.submit(computemagneticfield, js, solver, i, result_magnets))
-
-        for f in futures.as_completed(fs):
-            #i, mags = f.result()
-            #result_magnets[i] = mags
+            computemagneticfield(js, solver, i, result_magnets)
             progress.incrementasprint()
-            # TODO: CLEAR
-            # 残り時間を表示する部分を作る
 
-        print("")   # 改行して再開する必要がある
-
+    print("")   # 改行して再開する必要がある
     print("----- start computing the inductance -----")
     
     solver.computeinductance(result_magnets, times)

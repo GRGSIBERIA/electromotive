@@ -6,7 +6,7 @@ from solvers.solverbase import SolverBase, cross
 from solvers.dataset import Element, Magnet
 
 
-#@jit("f8(f8[:], f8[:], f8[:], f8, f8)", nopython=True)
+@jit("f8(f8[:], f8[:], f8[:], f8, f8)", nopython=True)
 def magnetizenabla(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, radius: float, magcharge:float):
     r = centroid - magnetpos
     length = np.linalg.norm(r)
@@ -17,7 +17,7 @@ def magnetizenabla(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, 
     #return np.dot(front, r) / length**3 * area * magcharge
 
 
-#@jit("f8(f8[:], f8[:], f8[:], f8[:], f8[:], f8, f8)", nopython=True)
+@jit("f8(f8[:], f8[:], f8[:], f8[:], f8[:], f8, f8)", nopython=True)
 def calctopbottomnabla(centroid, top, bottom, topF, bottomF, radius, magcharge):
     top = magnetizenabla(centroid, top, topF, radius, magcharge)
     bottom = magnetizenabla(centroid, bottom, bottomF, radius, magcharge)
