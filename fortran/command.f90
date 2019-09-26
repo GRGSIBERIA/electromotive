@@ -3,7 +3,7 @@ module Command
     
 contains
     subroutine CommandMode()
-        use Mode, only: HelpMode, ElectromotiveMode
+        use Mode, only: HelpMode, ElectromotiveMode, InduceElementMode
         implicit none
         integer :: status, length, count
         character(:), allocatable :: execmode
@@ -38,6 +38,9 @@ contains
 
             else if (index(execmode, "-e") > 0) then
                 CALL ElectromotiveMode(jsonpath)
+
+            else if (index(execmode, "-i") > 0) then
+                CALL InduceElementMode(jsonpath)
 
             end if
 
