@@ -14,6 +14,7 @@ contains
         PRINT *, "    This is require option."
     end subroutine HelpMode
 
+
     ! 誘導起電力を計算する
     subroutine ElectromotiveMode(jsonpath)
         implicit none
@@ -21,6 +22,7 @@ contains
 
     end subroutine
 
+    
     ! 要素ごとに磁化した量を表示する
     subroutine InduceElementMode(jsonpath)
         implicit none
