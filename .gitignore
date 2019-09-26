@@ -116,3 +116,4 @@ dmypy.json
 tonegenerator.py
 nojima.py
 *.mod
+*.out
