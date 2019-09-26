@@ -3,24 +3,50 @@ module Command
     
 contains
     subroutine CommandMode()
-        use Mode, only: HelpMode
+        use Mode, only: HelpMode, ElectromotiveMode
         implicit none
-        integer :: count, status, length
-        character(:), allocatable :: arg
+        integer :: status, length, count
+        character(:), allocatable :: execmode
+        character(:), allocatable :: jsonpath
         intrinsic :: command_argument_count, get_command_argument
 
-        call get_command_argument(1, length = length, status = status)
-        if (status == 0) then
-            if (index(arg, "-h") > 0) then
+        count = command_argument_count()
+        if (count == 2) then
+            call get_command_argument(1, length = length, status = status)
 
-            else if (index(arg, "-b") > 0) then
+            ! コマンドライン引数を取得する手続き
+            if (status == 0) then
+                allocate(character(length) :: execmode)
+                call get_command_argument(1, execmode, status = status)
+
+                call get_command_argument(2, jsonpath, length = length, status = status)
+                if (status == 0) then
+                    allocate(character(length) :: jsonpath)
+                    call get_command_argument(2, jsonpath, status = status)
+                else
+                    call HelpMode()
+                    stop
+                end if
+            else
+                call HelpMode()
+                stop
+            end if
+
+            ! モードごとに分岐
+            if (index(execmode, "-h") > 0) then
+                CALL HelpMode()
+
+            else if (index(execmode, "-e") > 0) then
+                CALL ElectromotiveMode(jsonpath)
 
             end if
+
+            deallocate(execmode)
+            deallocate(jsonpath)
+        else
+            Call HelpMode()
+            stop
         end if
-        deallocate(arg)
-
-
-    
     end subroutine CommandMode
 
 end module Command
