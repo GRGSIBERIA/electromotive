@@ -3,12 +3,12 @@ module Command
     
 contains
     subroutine CommandMode()
-        use Mode, only: HelpMode, ElectromotiveMode, InduceElementMode
+        use Mode, only: HelpMode, ElectromotiveMode
         implicit none
         integer :: status, length, count
         character(:), allocatable :: execmode
-        character(:), allocatable :: jsonpath
-        intrinsic :: command_argument_count, get_command_argument
+        character(:), allocatable :: confpath
+        !intrinsic :: command_argument_count, get_command_argument  ! 警告が出る
 
         count = command_argument_count()
         if (count == 2) then
@@ -19,10 +19,10 @@ contains
                 allocate(character(length) :: execmode)
                 call get_command_argument(1, execmode, status = status)
 
-                call get_command_argument(2, jsonpath, length = length, status = status)
+                call get_command_argument(2, confpath, length = length, status = status)
                 if (status == 0) then
-                    allocate(character(length) :: jsonpath)
-                    call get_command_argument(2, jsonpath, status = status)
+                    allocate(character(length) :: confpath)
+                    call get_command_argument(2, confpath, status = status)
                 else
                     call HelpMode()
                     stop
@@ -37,15 +37,15 @@ contains
                 CALL HelpMode()
 
             else if (index(execmode, "-e") > 0) then
-                CALL ElectromotiveMode(jsonpath)
+                CALL ElectromotiveMode(confpath)
 
-            else if (index(execmode, "-i") > 0) then
-                CALL InduceElementMode(jsonpath)
+!            else if (index(execmode, "-i") > 0) then
+!                CALL InduceElementMode(confpath)
 
             end if
 
             deallocate(execmode)
-            deallocate(jsonpath)
+            deallocate(confpath)
         else
             Call HelpMode()
             stop

@@ -4,30 +4,29 @@ module Mode
 contains
     subroutine HelpMode()
         implicit none
-        print *, "electromotive.exe [option] [json config file]"
+        print *, "electromotive.exe [option] [config file]"
         PRINT *, "[options]"
         PRINT *, "Choose which one."
-        PRINT *, "    -e    Analysis electromotive from json."
-        PRINT *, "    -i    Analysis to induce elements from magnets."
-        PRINT *, "    -h    Shows help."
-        PRINT *, "[json config file]"
+        PRINT *, "    -e    Analysis the electromotive from the configure file."
+        PRINT *, "    -h    Shows a help."
+        PRINT *, "[config file]"
         PRINT *, "    This is require option."
     end subroutine HelpMode
 
 
     ! 誘導起電力を計算する
-    subroutine ElectromotiveMode(jsonpath)
+    subroutine ElectromotiveMode(confpath)
         implicit none
-        character(*) :: jsonpath
+        character(*) :: confpath
 
     end subroutine
 
     
     ! 要素ごとに磁化した量を表示する
-    subroutine InduceElementMode(jsonpath)
-        implicit none
-        character(*) :: jsonpath
-
-    end subroutine
+!    subroutine InduceElementMode(confpath)
+!        implicit none
+!        character(*) :: confpath
+!
+!    end subroutine
 
 end module Mode

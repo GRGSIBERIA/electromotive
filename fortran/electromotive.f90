@@ -1,4 +1,5 @@
 program electromotive
+    use Command
     implicit none
     
     call MAIN()
@@ -6,6 +7,6 @@ program electromotive
     contains
     
     subroutine MAIN()
-        print *, "hello"
+        call CommandMode()
     end subroutine
 end program electromotive
