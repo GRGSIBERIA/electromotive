@@ -18,6 +18,11 @@ contains
     subroutine ElectromotiveMode(confpath)
         implicit none
         character(*) :: confpath
+        integer, parameter :: fd = 100
+
+        open(fd, file=confpath, status="old")
+
+        close(fd)
 
     end subroutine
 
