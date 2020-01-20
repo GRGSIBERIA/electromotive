@@ -66,6 +66,7 @@ class InputFile:
         else:
             raise Exception("Syntax Error: undefined *Node, lineno=" + str(1))
         
+        # nodeで解析する場合，elementが0の可能性が考慮されてない可能性がある
         if isElement(lines[1 + nodeCount]):
             elemCount = numofSize(lines, 2 + nodeCount)
         else:

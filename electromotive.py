@@ -15,7 +15,7 @@ from inpfile import InputFile
 from rptfile import ReportFile
 from solver import Solver
 from binary import writebinary, readbinary, SequentialReportReader
-from solvers.dataset import Element, Magnet
+from solvers.dataset import Element, Magnet, Node
 from src.progressbar import ProgressBar
 from src.writecsv import writecsv
 from src.writewav import writewav
@@ -88,6 +88,7 @@ def receiveelementsandmagnetseachtime(js):
         inp = conf["inpdata"]
         nodes = {}
 
+        # 要素で解析する
         if conf["type"] == "element":
             mag = float(conf["magnetic permeability"])
             
@@ -108,6 +109,15 @@ def receiveelementsandmagnetseachtime(js):
                             break
                         enode.append(nodes[nid])
                     """
+        # 節点で解析する
+        elif conf["type"] == "node":
+            mag = float(conf["magnetic permeability"])
+
+            for nid, pos in data.items():
+                nodes[nid] = inp.nodes[nid] + pos
+            
+            for node in nodes.values():
+                append_element(Node(node, mag))
 
             # TODO: CLEAR
             # Elementはsrc/dataset.pyを使っているので，solvers/dataset.pyのものを使う
