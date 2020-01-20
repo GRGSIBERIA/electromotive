@@ -23,7 +23,7 @@ def makeheaders(lines):
 def getenablenodes(headers, maxnodeid):
     nodeaxis = {}
     for lineid, header in headers.items():
-        nodeid = int(header.split(" N:")[1].split("_")[0])
+        nodeid = int(header.split(" N:")[1].split("_")[0])      # 末尾にアンダーバーが付く場合がある
         if nodeid <= maxnodeid:
             axisid = int(header[3:4]) - 1
             nodeaxis[lineid] = {"nodeid": nodeid, "axisid": axisid}
