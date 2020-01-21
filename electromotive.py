@@ -141,6 +141,17 @@ def receiveelementsandmagnetseachtime(js):
             # Magnetには座標ではなく変位が入っているのでゼロ除算が起きている
             # 変位から座標値を追加する方法を検討しなければならない
 
+        # 完全固定のマグネット扱い
+        elif conf["type"] == "fixed magnet":
+            tcp = np.array(conf["top"]["position"])
+            trp = tcp + np.array(conf["top"]["right"])
+            bcp = np.array(conf["bottom"]["position"])
+            brp = tcp + np.array(conf["bottom"]["right"])
+            mag = float(conf["magnetic charge"])
+
+            magnet = Magnet(tcp, trp, bcp, brp, mag)
+            append_magnet(magnet)
+
     return elements, magnets
 
 
@@ -173,6 +184,10 @@ def solve(path: str) -> List[List[Magnet]]:
 
     # マルチスレッドで実行
     multithread = False
+    if "multithread" in js["config"]:
+        if js["config"]["multithread"] == "true":
+            multithread = True
+
     if multithread:
         with futures.ThreadPoolExecutor() as executor:
             fs = []
