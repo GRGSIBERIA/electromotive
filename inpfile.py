@@ -39,12 +39,19 @@ def extractElement(lines, start, elemCount):
     data = [line.split(",") for line in lines[start:start+elemCount]]
     return {int(datum[0]): [int(x) for x in datum[1:5]] for datum in data}
 
-def getmaxnodeid(elements):
+def getmaxnodeidfromelement(elements):
     maxid = 0
     for elem in elements.values():
         for nid in elem:
             if maxid < nid:
                 maxid = nid
+    return maxid
+
+def getmaxnodeid(nodes):
+    maxid = 0
+    for nodeid in nodes.keys():
+        if maxid < nodeid:
+            maxid = nodeid
     return maxid
 
 class InputFile:
@@ -56,7 +63,7 @@ class InputFile:
         self.elements = elements
     
     @classmethod
-    def open(cls, path):
+    def open(cls, path, conf):
         lines = readlines(path)
 
         translate = np.zeros(3)
@@ -78,7 +85,11 @@ class InputFile:
 
         nodes = extractNode(lines, nodeCount, translate)
         elements = extractElement(lines, 2 + nodeCount, elemCount)
-        maxnodeid = getmaxnodeid(elements)
+
+        if conf["type"] == "magnet" or conf["type"] == "element":
+            maxnodeid = getmaxnodeidfromelement(elements)
+        elif conf["type"] == "node":
+            maxnodeid = getmaxnodeid(nodes)
 
         return InputFile(nodeCount, elemCount, maxnodeid, nodes, elements)
 

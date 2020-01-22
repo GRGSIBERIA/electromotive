@@ -28,7 +28,10 @@ pp = pprint.PrettyPrinter(indent=4)
 def readingconfiguration(part: str, conf) -> List[float]:
     print("----- import %s -----" % part)
 
-    inp = InputFile.open(conf["input"])
+    if conf["type"] == "fixed magnet":
+        return []
+
+    inp = InputFile.open(conf["input"], conf)
     print(conf["input"])
 
     brppath = os.path.splitext(conf["report"])[0] + ".brp"
@@ -60,10 +63,14 @@ def setupconfiguration(js) -> List[float]:
 
         # 時間の長さが異なるかどうかチェックする
         times_temp = readingconfiguration(part, conf)
-        if times != None:
-            if len(times) != len(times_temp):
+
+        if times == None:
+            if conf["type"] != "fixed magnet":
+                times = times_temp
+        
+        if conf["type"] != "fixed magnet":
+            if len(times_temp) != len(times):
                 raise Exception(part + "is not equal to " + str(len(times)))
-        times = times_temp
 
         print("done import {} - {} sec".format(part, time.time() - start))
 
@@ -81,12 +88,14 @@ def receiveelementsandmagnetseachtime(js):
             continue
 
         try:
-            data = conf["rptdata"].read()
+            if conf["type"] == "element" or conf["type"] == "magnet" or conf["type"] == "node":
+                data = conf["rptdata"].read()
         except StopIteration:
             break
 
-        inp = conf["inpdata"]
-        nodes = {}
+        if conf["type"] == "element" or conf["type"] == "magnet" or conf["type"] == "node":
+            inp = conf["inpdata"]
+            nodes = {}
 
         # 要素で解析する
         if conf["type"] == "element":
