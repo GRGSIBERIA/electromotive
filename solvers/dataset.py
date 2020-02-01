@@ -3,6 +3,15 @@ from typing import List
 import numpy as np
 from numba import jit, prange, jitclass, f8
 
+class Node:
+    def __init__(self, ns: np.ndarray, mag: float):
+        self.centroid = ns
+        self.volume = 1.
+        self.direction = np.zeros(3)
+        self.magnetic_permeability = mag
+        self.magnetized = 0.0
+
+
 class Element:
     def __init__(self, ns: List[np.ndarray], mag: float):
         self.volume = calcvolume(ns[0], ns[1], ns[2], ns[3])

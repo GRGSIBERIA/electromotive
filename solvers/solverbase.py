@@ -44,7 +44,7 @@ class SolverBase:
             total += func(
                 element.centroid, magnet.top, magnet.bottom, 
                 magnet.topF, magnet.bottomF, magnet.radius, magnet.magcharge)
-        element.magnetized = total
+        element.magnetized = total * element.volume
         element.direction = calcdirection(element.centroid, magnets)
 
 
@@ -55,7 +55,7 @@ class SolverBase:
             total += func(
                 magnet.top, element.centroid, element.direction, 
                 magnet.radius, element.magnetized)
-        magnet.inducedmagnetized = total
+        magnet.inducedmagnetized = -total   # 誘導起電力はマイナスになる
 
 
     @classmethod

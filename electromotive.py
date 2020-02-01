@@ -15,7 +15,7 @@ from inpfile import InputFile
 from rptfile import ReportFile
 from solver import Solver
 from binary import writebinary, readbinary, SequentialReportReader
-from solvers.dataset import Element, Magnet
+from solvers.dataset import Element, Magnet, Node
 from src.progressbar import ProgressBar
 from src.writecsv import writecsv
 from src.writewav import writewav
@@ -28,7 +28,10 @@ pp = pprint.PrettyPrinter(indent=4)
 def readingconfiguration(part: str, conf) -> List[float]:
     print("----- import %s -----" % part)
 
-    inp = InputFile.open(conf["input"])
+    if conf["type"] == "fixed magnet":
+        return []
+
+    inp = InputFile.open(conf["input"], conf)
     print(conf["input"])
 
     brppath = os.path.splitext(conf["report"])[0] + ".brp"
@@ -60,10 +63,14 @@ def setupconfiguration(js) -> List[float]:
 
         # 時間の長さが異なるかどうかチェックする
         times_temp = readingconfiguration(part, conf)
-        if times != None:
-            if len(times) != len(times_temp):
+
+        if times == None:
+            if conf["type"] != "fixed magnet":
+                times = times_temp
+        
+        if conf["type"] != "fixed magnet":
+            if len(times_temp) != len(times):
                 raise Exception(part + "is not equal to " + str(len(times)))
-        times = times_temp
 
         print("done import {} - {} sec".format(part, time.time() - start))
 
@@ -81,13 +88,16 @@ def receiveelementsandmagnetseachtime(js):
             continue
 
         try:
-            data = conf["rptdata"].read()
+            if conf["type"] == "element" or conf["type"] == "magnet" or conf["type"] == "node":
+                data = conf["rptdata"].read()
         except StopIteration:
             break
 
-        inp = conf["inpdata"]
-        nodes = {}
+        if conf["type"] == "element" or conf["type"] == "magnet" or conf["type"] == "node":
+            inp = conf["inpdata"]
+            nodes = {}
 
+        # 要素で解析する
         if conf["type"] == "element":
             mag = float(conf["magnetic permeability"])
             
@@ -108,6 +118,15 @@ def receiveelementsandmagnetseachtime(js):
                             break
                         enode.append(nodes[nid])
                     """
+        # 節点で解析する
+        elif conf["type"] == "node":
+            mag = float(conf["magnetic permeability"])
+
+            for nid, pos in data.items():
+                nodes[nid] = inp.nodes[nid] + pos
+            
+            for node in nodes.values():
+                append_element(Node(node, mag))
 
             # TODO: CLEAR
             # Elementはsrc/dataset.pyを使っているので，solvers/dataset.pyのものを使う
@@ -130,6 +149,17 @@ def receiveelementsandmagnetseachtime(js):
             # TODO: CLEAR
             # Magnetには座標ではなく変位が入っているのでゼロ除算が起きている
             # 変位から座標値を追加する方法を検討しなければならない
+
+        # 完全固定のマグネット扱い
+        elif conf["type"] == "fixed magnet":
+            tcp = np.array(conf["top"]["position"])
+            trp = tcp + np.array(conf["top"]["right"])
+            bcp = np.array(conf["bottom"]["position"])
+            brp = tcp + np.array(conf["bottom"]["right"])
+            mag = float(conf["magnetic charge"])
+
+            magnet = Magnet(tcp, trp, bcp, brp, mag)
+            append_magnet(magnet)
 
     return elements, magnets
 
@@ -155,14 +185,20 @@ def solve(path: str) -> List[List[Magnet]]:
     
     print("--- start computing electromotive ---")
 
+    start = time.time()
     solver = Solver(js["config"]["solver"])
 
     print("----- start computing the magnetic field -----")
 
     progress = ProgressBar(len(times))
+    start = time.time()
 
     # マルチスレッドで実行
     multithread = False
+    if "multithread" in js["config"]:
+        if js["config"]["multithread"] == "true":
+            multithread = True
+
     if multithread:
         with futures.ThreadPoolExecutor() as executor:
             fs = []
@@ -182,9 +218,12 @@ def solve(path: str) -> List[List[Magnet]]:
             progress.incrementasprint()
 
     print("")   # 改行して再開する必要がある
+    print("done computing magnetic field - {} sec".format(time.time() - start))
     print("----- start computing the inductance -----")
-    
+
+    start = time.time()
     solver.computeinductance(result_magnets, times)
+    print("done computing the inductance - {} sec".format(time.time() - start))
 
     return js, result_magnets
 
