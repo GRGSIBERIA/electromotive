@@ -185,11 +185,13 @@ def solve(path: str) -> List[List[Magnet]]:
     
     print("--- start computing electromotive ---")
 
+    start = time.time()
     solver = Solver(js["config"]["solver"])
 
     print("----- start computing the magnetic field -----")
 
     progress = ProgressBar(len(times))
+    start = time.time()
 
     # マルチスレッドで実行
     multithread = False
@@ -216,9 +218,12 @@ def solve(path: str) -> List[List[Magnet]]:
             progress.incrementasprint()
 
     print("")   # 改行して再開する必要がある
+    print("done computing magnetic field - {} sec".format(time.time() - start))
     print("----- start computing the inductance -----")
-    
+
+    start = time.time()
     solver.computeinductance(result_magnets, times)
+    print("done computing the inductance - {} sec".format(time.time() - start))
 
     return js, result_magnets
 
