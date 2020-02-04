@@ -12,7 +12,7 @@ def extractinductance(i: int, timemags: List[List[Magnet]]) -> np.ndarray:
 
 
 def createwav(path: str, times: List[float], samplerate: int):
-    y = [int(time) for time in times / np.max(times) * 32767. * 0.8]
+    y = [int(time) for time in times / np.max(np.abs(times)) * 32767.]
     data = struct.pack("h" * len(y), *y)
     with wave.open(path, "w") as w:
         w.setnchannels(1)
