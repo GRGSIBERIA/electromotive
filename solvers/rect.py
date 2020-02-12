@@ -31,7 +31,7 @@ def magnetizerect(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, r
 def calctopbottomrect(centroid, top, bottom, topF, bottomF, radius, magcharge):
     a = magnetizerect(centroid, top, topF, radius, magcharge)
     b = magnetizerect(centroid, bottom, bottomF, radius, magcharge)
-    return a - b
+    return a + b
 
 
 class RectSolver(SolverBase):

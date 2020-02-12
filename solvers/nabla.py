@@ -12,8 +12,8 @@ def magnetizenabla(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, 
     length = np.linalg.norm(r)
     j = cross(front, r/length)
     k = cross(j, front)
-    area = 2. * np.pi * radius**2
-    return (np.dot(front, r) + np.dot(k, r) / radius) / length**3 * area * magcharge
+    area = 2. * np.pi * radius**2.
+    return (np.dot(front, r) + np.dot(k, r)) / length**3. * area * magcharge
     #return np.dot(front, r) / length**3 * area * magcharge
 
 
@@ -21,7 +21,7 @@ def magnetizenabla(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarray, 
 def calctopbottomnabla(centroid, top, bottom, topF, bottomF, radius, magcharge):
     top = magnetizenabla(centroid, top, topF, radius, magcharge)
     bottom = magnetizenabla(centroid, bottom, bottomF, radius, magcharge)
-    return top - bottom
+    return top + bottom
 
 
 class NablaSolver(SolverBase):

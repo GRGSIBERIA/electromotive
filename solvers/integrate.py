@@ -6,7 +6,7 @@ from solvers.solverbase import SolverBase, cross
 from solvers.dataset import Element, Magnet
 
 
-@jit("f8[:](f8[:], f8, f8[:])", nopython=True)
+#@jit("f8[:](f8[:], f8, f8[:])", nopython=True)
 def rotation(axis:np.ndarray, theta:float, vec:np.ndarray):
     rot = axis * np.sin(theta/2.)
     rotv = -axis * np.cos(theta/2.)
@@ -16,7 +16,7 @@ def rotation(axis:np.ndarray, theta:float, vec:np.ndarray):
     return rv
 
 
-@jit("f8(f8, f8, f8, f8[:], f8[:], f8[:], f8, f8[:], f8[:])", nopython=True)
+#@jit("f8(f8, f8, f8, f8[:], f8[:], f8[:], f8, f8[:], f8[:])", nopython=True)
 def quadfunction(drho:float, dphi:float, 
     magcharge:float, r:np.ndarray, front:np.ndarray, right:np.ndarray, radius:float,
     centroid:np.ndarray, magpos:np.ndarray):
@@ -39,7 +39,7 @@ def magnetizeintegrate(centroid:np.ndarray, magnetpos:np.ndarray, front:np.ndarr
 def calctopbottomintegrate(centroid, top, bottom, topF, bottomF, radius, magcharge):
     a = magnetizeintegrate(centroid, top, topF, radius, magcharge)
     b = magnetizeintegrate(centroid, bottom, bottomF, radius, magcharge)
-    return a - b
+    return a + b
 
 
 class IntegrateSolver(SolverBase):

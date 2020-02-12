@@ -6,6 +6,7 @@ def readfile(path):
         lines = f.readlines()
     return lines
 
+
 def makeheaders(lines):
     headers = {}
     for i in range(len(lines)):
@@ -18,14 +19,16 @@ def makeheaders(lines):
             headers[i+2] = header   # 実際に読み込み始める行数を挿入
     return headers
 
+
 def getenablenodes(headers, maxnodeid):
     nodeaxis = {}
     for lineid, header in headers.items():
-        nodeid = int(header.split(" N:")[1])
+        nodeid = int(header.split(" N:")[1].split("_")[0])      # 末尾にアンダーバーが付く場合がある
         if nodeid <= maxnodeid:
             axisid = int(header[3:4]) - 1
             nodeaxis[lineid] = {"nodeid": nodeid, "axisid": axisid}
     return nodeaxis
+
 
 def gettimes(nodeaxis, lines):
     firstline = list(nodeaxis)[0]
@@ -41,6 +44,7 @@ def gettimes(nodeaxis, lines):
         cnt += 1
     return times
 
+
 def setupdisplacements(nodeaxis, maxnodeid, positions, times, lines):
 
     for lineid, data in nodeaxis.items():
@@ -51,6 +55,8 @@ def setupdisplacements(nodeaxis, maxnodeid, positions, times, lines):
         if nodeid > maxnodeid:
             continue
         
+        if nodeid not in positions:
+            positions[nodeid] = [np.zeros(3) for _, _ in enumerate(times)]
         node = positions[nodeid]
 
         for timeid in range(len(times)):
@@ -61,7 +67,8 @@ def setupdisplacements(nodeaxis, maxnodeid, positions, times, lines):
 class ReportFile:
     def __init__(self, lines, maxnodeid, nodeaxis):
         self.times = gettimes(nodeaxis, lines)
-        self.displacements = {i: [np.zeros(3) for _ in range(len(self.times))] for i in range(maxnodeid+1)}
+        #self.displacements = {i: [np.zeros(3) for _ in range(len(self.times))] for i in range(maxnodeid+1)}
+        self.displacements = {}
         setupdisplacements(nodeaxis, maxnodeid, self.displacements, self.times, lines)
     
     @classmethod
@@ -78,6 +85,7 @@ import sys
 import time
 import os.path
 from inpfile import InputFile
+
 
 def printhelp():
     print("python report.py [input path] [report path]")
@@ -96,7 +104,7 @@ if __name__ == "__main__":
     if not os.path.isfile(reportpath) and not os.path.isfile(inputptah):
         printhelp()
     
-    binpath = os.path.splitext(reportpath)[0] + ".bin"
+    binpath = os.path.splitext(reportpath)[0] + ".brp"
 
     # 拡張子検査
     if not os.path.splitext(reportpath)[1] == ".rpt" and not os.path.splitext(inputpath)[1] == ".inp":

@@ -39,12 +39,19 @@ def extractElement(lines, start, elemCount):
     data = [line.split(",") for line in lines[start:start+elemCount]]
     return {int(datum[0]): [int(x) for x in datum[1:5]] for datum in data}
 
-def getmaxnodeid(elements):
+def getmaxnodeidfromelement(elements):
     maxid = 0
     for elem in elements.values():
         for nid in elem:
             if maxid < nid:
                 maxid = nid
+    return maxid
+
+def getmaxnodeid(nodes):
+    maxid = 0
+    for nodeid in nodes.keys():
+        if maxid < nodeid:
+            maxid = nodeid
     return maxid
 
 class InputFile:
@@ -56,7 +63,7 @@ class InputFile:
         self.elements = elements
     
     @classmethod
-    def open(cls, path):
+    def open(cls, path, conf):
         lines = readlines(path)
 
         translate = np.zeros(3)
@@ -66,6 +73,7 @@ class InputFile:
         else:
             raise Exception("Syntax Error: undefined *Node, lineno=" + str(1))
         
+        # nodeで解析する場合，elementが0の可能性が考慮されてない可能性がある
         if isElement(lines[1 + nodeCount]):
             elemCount = numofSize(lines, 2 + nodeCount)
         else:
@@ -77,18 +85,18 @@ class InputFile:
 
         nodes = extractNode(lines, nodeCount, translate)
         elements = extractElement(lines, 2 + nodeCount, elemCount)
-        maxnodeid = getmaxnodeid(elements)
+
+        if conf["type"] == "magnet" or conf["type"] == "element":
+            maxnodeid = getmaxnodeidfromelement(elements)
+        elif conf["type"] == "node":
+            maxnodeid = getmaxnodeid(nodes)
 
         return InputFile(nodeCount, elemCount, maxnodeid, nodes, elements)
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("python inpfile.py [config file path]")
-        sys.exit()
 
-    confpath = sys.argv[1]
+def summarizeinpfile(confpath: str):
     js = Config.open(confpath)
-    print("element name: number of valid 1-dim node")
+    print("--- summaries the number of 1-dim nodes ---")
     for name, value in js.items():
         if name == "config":
             continue
@@ -97,3 +105,15 @@ if __name__ == "__main__":
             inp = InputFile.open(value["input"])
             print("{0}: {1}".format(name, inp.maxnodeid))
             
+
+import os.path
+
+if __name__ == "__main__":
+    confpath = sys.argv[1]
+
+    if len(sys.argv) < 2 or not os.path.exists(sys.argv[1]):
+        print("python inpfile.py [config file path]")
+        sys.exit()
+        
+    summarizeinpfile(confpath)
+    
