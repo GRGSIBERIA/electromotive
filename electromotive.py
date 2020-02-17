@@ -172,7 +172,7 @@ def computemagneticfield(js, solver, i, result_magnets):
     
     result_magnets[i] = magnets
     #return i, magnets
-    
+
 
 def solve(path: str) -> List[List[Magnet]]:
     print("--- start import ---")
