@@ -33,7 +33,8 @@ class SolverBase:
     @classmethod
     def voltage(cls, magnetA:Magnet, magnetB:Magnet, deltatime:float):
         # 通過する磁束の時刻歴をもとに誘導起電力を計算
-        magnetA.inducedvoltage += inducevoltage(
+        # ファラデーだと符号が逆になっているのでそのとおりにする
+        magnetA.inducedvoltage -= inducevoltage(
             magnetA.inducedmagnetized, magnetB.inducedmagnetized, deltatime)
 
 
