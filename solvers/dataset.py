@@ -56,5 +56,8 @@ class Magnet:
         self.radius = np.linalg.norm(self.topR - self.top)
         self.magcharge = magcharge
 
+        self.topmagnetized = 0.0
+        self.bottommagnetized = 0.0
+
         self.inducedmagnetized = 0.0    # 鎖交磁場の誘導起電力
         self.inducedvoltage = 0.0       # 誘導起電力

@@ -55,7 +55,7 @@ class SolverBase:
             total += func(
                 magnet.top, element.centroid, element.direction, 
                 magnet.radius, element.magnetized)
-        magnet.inducedmagnetized = -total   # 誘導起電力はマイナスになる
+        magnet.inducedmagnetized = total
 
 
     @classmethod
